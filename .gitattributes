@@ -1,0 +1,12 @@
+# Default: normalise line endings for text we edit.
+* text=auto eol=lf
+
+# Raw data is read-only and must stay byte-identical for everyone on the team.
+# Without this, Git rewrites line endings per platform and the files differ.
+*.csv -text
+
+# Binary deliverables
+*.docx binary
+*.pdf  binary
+*.xlsx binary
+*.pptx binary

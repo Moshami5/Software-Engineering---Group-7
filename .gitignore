@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Generated data — produced by the scripts, not committed.
+# NOTE: the raw files in data/*.csv ARE committed; only data/processed/ is ignored.
+data/processed/*
+!data/processed/.gitkeep
+
+# Generated model artefacts
+*.pt
+*.joblib
+*.pkl
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
