@@ -6,10 +6,18 @@ venv/
 .pytest_cache/
 .ipynb_checkpoints/
 
-# Generated data — produced by the scripts, not committed.
-# NOTE: the raw files in data/*.csv ARE committed; only data/processed/ is ignored.
+# Intermediate data — produced by the scripts, not committed.
+# NOTE: the raw files in data/*.csv ARE committed.
 data/processed/*
 !data/processed/.gitkeep
+
+# ...but the frozen train/dev/test split IS committed, deliberately. Everyone has to
+# train and evaluate on the same rows or no two results are comparable, so the split
+# is checked in rather than regenerated per machine.
+!data/processed/train.csv
+!data/processed/dev.csv
+!data/processed/test.csv
+!data/processed/split_manifest.json
 
 # Generated model artefacts
 *.pt

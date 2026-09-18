@@ -14,10 +14,11 @@ the other.
 
 ```
 data/                raw data as downloaded — read-only, never write here
-data/processed/      cleaned data and the frozen train/dev/test split (generated, not committed)
+data/processed/      cleaned data (not committed) and the frozen split (committed)
 src/                 library code: loading, preprocessing, splitting, models, pipeline
 scripts/             one runnable stage each; every reported number comes from one of these
 tests/               automated tests (pytest)
+docs/                planning documents and working guides
 reports/             the per-task deliverables
 ```
 
@@ -27,13 +28,15 @@ Empty directories are held by `.gitkeep` files and fill up as each task lands.
 
 - **Raw data is read-only.** Cleaning writes to `data/processed/`, never back over the
   files in `data/`.
-- **The split gets frozen.** Once the train/dev/test split is committed it does not
-  change — a different split makes everyone's numbers incomparable. It is written with a
-  fixed seed and a checksum manifest so a change fails loudly instead of silently.
+- **The split gets frozen, and it gets committed.** `train.csv`, `dev.csv`, `test.csv` and
+  `split_manifest.json` are checked into `data/processed/` on purpose — everyone has to
+  train and evaluate on the same rows or no two results are comparable. Once committed the
+  split does not change. Write it with a fixed seed and a checksum manifest so a change
+  fails loudly instead of silently.
 - **Numbers must be regenerable.** Anything quoted in a report should come from a script
   in `scripts/` that can be re-run, so notebooks stay for exploration rather than being
   the only place a result exists.
-- **Generated data is not committed** — see `.gitignore`; the scripts rebuild it.
+- **Other intermediate data is not committed** — see `.gitignore`; the scripts rebuild it.
 
 ## Status
 
