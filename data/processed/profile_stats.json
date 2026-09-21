@@ -1,0 +1,42 @@
+{
+  "courses_rows": 8092,
+  "courses_cols": 45,
+  "fill_rates": {
+    "Title": 1.0,
+    "Short Intro": 0.9936,
+    "Category": 0.3484,
+    "Skills": 0.2594,
+    "URL": 1.0
+  },
+  "labelled_site": "Coursera",
+  "labelled_rows": 2819,
+  "category_counts_raw": {
+    "Business": 895,
+    "Computer Science": 455,
+    "Data Science": 448,
+    "Health": 264,
+    "Information Technology": 221,
+    "Physical Science and Engineering": 150,
+    "Arts and Humanities": 120,
+    "Language Learning": 86,
+    "Social Sciences": 83,
+    "Personal Development": 68,
+    "Math and Logic": 22,
+    "计算机科学": 1,
+    "Ciencia de Datos": 1,
+    "Negocios": 1,
+    "Ciencias de la Computación": 1,
+    "Negócios": 1,
+    "データサイエンス": 1,
+    "Tecnologia da informação": 1
+  },
+  "localised_label_rows": 7,
+  "n_english_categories": 11,
+  "dup_url_rows": 2819,
+  "dup_text_rows": 3103,
+  "distinct_course_skill_strings": 4229,
+  "esco_label_set_size": 99624,
+  "exact_matched_strings": 312,
+  "exact_match_rate": 0.0738,
+  "unmatched_rate": 0.9262
+}
