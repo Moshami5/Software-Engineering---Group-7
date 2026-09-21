@@ -19,6 +19,12 @@ data/processed/*
 !data/processed/test.csv
 !data/processed/split_manifest.json
 
+# Committed data deliverables: the reproducible profiling stats and the readable
+# split/profile reports the write-up is built from (MODEL_PLAN.md sections 2, 4).
+!data/processed/split_report.md
+!data/processed/profile_report.md
+!data/processed/profile_stats.json
+
 # Generated model artefacts
 *.pt
 *.joblib

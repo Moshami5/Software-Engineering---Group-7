@@ -1,0 +1,92 @@
+{
+  "seed": 42,
+  "labelled_site": "Coursera",
+  "labelled_rows": 2819,
+  "localised_labels_mapped": 7,
+  "dedup_keys": [
+    "Title",
+    "Short Intro"
+  ],
+  "duplicate_rows_dropped": 242,
+  "rows_after_dedup": 2577,
+  "columns_kept": [
+    "Title",
+    "Short Intro",
+    "Category",
+    "Skills",
+    "URL"
+  ],
+  "split_sizes": {
+    "train": 1805,
+    "dev": 386,
+    "test": 386
+  },
+  "class_distribution": {
+    "Arts and Humanities": {
+      "train": 71,
+      "dev": 15,
+      "test": 15,
+      "total": 101
+    },
+    "Business": {
+      "train": 576,
+      "dev": 124,
+      "test": 124,
+      "total": 824
+    },
+    "Computer Science": {
+      "train": 292,
+      "dev": 62,
+      "test": 62,
+      "total": 416
+    },
+    "Data Science": {
+      "train": 265,
+      "dev": 57,
+      "test": 57,
+      "total": 379
+    },
+    "Health": {
+      "train": 179,
+      "dev": 39,
+      "test": 39,
+      "total": 257
+    },
+    "Information Technology": {
+      "train": 139,
+      "dev": 30,
+      "test": 30,
+      "total": 199
+    },
+    "Language Learning": {
+      "train": 59,
+      "dev": 12,
+      "test": 12,
+      "total": 83
+    },
+    "Math and Logic": {
+      "train": 16,
+      "dev": 3,
+      "test": 3,
+      "total": 22
+    },
+    "Personal Development": {
+      "train": 45,
+      "dev": 10,
+      "test": 10,
+      "total": 65
+    },
+    "Physical Science and Engineering": {
+      "train": 105,
+      "dev": 22,
+      "test": 22,
+      "total": 149
+    },
+    "Social Sciences": {
+      "train": 58,
+      "dev": 12,
+      "test": 12,
+      "total": 82
+    }
+  }
+}
