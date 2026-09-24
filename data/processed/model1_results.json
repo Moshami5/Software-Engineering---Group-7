@@ -16,13 +16,13 @@
       "model": "tfidf-logreg",
       "accuracy": 0.8057,
       "macro_f1": 0.7517,
-      "infer_ms_per_item": 0.053
+      "infer_ms_per_item": 0.065
     },
     {
       "model": "tfidf-svd-mlp",
       "accuracy": 0.8109,
       "macro_f1": 0.7239,
-      "infer_ms_per_item": 0.097
+      "infer_ms_per_item": 0.098
     }
   ],
   "test_best_model": "tfidf-logreg",
@@ -30,7 +30,7 @@
     "model": "tfidf-logreg (TEST)",
     "accuracy": 0.7953,
     "macro_f1": 0.7721,
-    "infer_ms_per_item": 0.061
+    "infer_ms_per_item": 0.054
   },
   "test_per_class": {
     "Arts and Humanities": {
@@ -108,7 +108,7 @@
   },
   "training_stats": {
     "tfidf-svd-mlp": {
-      "train_seconds": 6.4,
+      "train_seconds": 7.25,
       "epochs_run": 92,
       "max_iter": 200,
       "loss_curve": [
@@ -212,7 +212,7 @@
       "svd_components": 300
     },
     "tfidf-logreg": {
-      "train_seconds": 0.62
+      "train_seconds": 0.65
     }
   },
   "environment": {
