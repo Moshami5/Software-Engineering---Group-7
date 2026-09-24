@@ -14,6 +14,7 @@ Run from the repo root:  python scripts/make_split.py
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import sys
 from pathlib import Path
@@ -95,6 +96,15 @@ def main() -> None:
     for name, part in [("train", train), ("dev", dev), ("test", test)]:
         part.to_csv(DATA_PROCESSED / f"{name}.csv", index=False, encoding="utf-8")
 
+    # sha256 of each committed split file - the fingerprint the frozen-split
+    # test checks against (tests/test_frozen_split.py).
+    checksums = {
+        f"{name}.csv": hashlib.sha256(
+            (DATA_PROCESSED / f"{name}.csv").read_bytes()
+        ).hexdigest()
+        for name in ("train", "dev", "test")
+    }
+
     # --- committed metadata (split_manifest.json, per sections 2 and 6) -----
     dist = pd.DataFrame({
         "train": class_distribution(train),
@@ -116,6 +126,7 @@ def main() -> None:
         "class_distribution": {
             str(cat): {k: int(v) for k, v in row.items()} for cat, row in dist.iterrows()
         },
+        "checksums_sha256": checksums,
     }
     (DATA_PROCESSED / "split_manifest.json").write_text(
         json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8"

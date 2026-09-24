@@ -88,5 +88,10 @@
       "test": 12,
       "total": 82
     }
+  },
+  "checksums_sha256": {
+    "train.csv": "4f07ec0b3b2d4b81af7dc5e1141e1196f458c256fc6b5a969df1aba4c38c9144",
+    "dev.csv": "9c8282be6a028352422678bc40f1f23f43057d72650c0d8c036769d8fb381dd4",
+    "test.csv": "99d0881649d9f478da46aa61d115362619574ea6b13bf98b55c676f86e8ec050"
   }
 }
