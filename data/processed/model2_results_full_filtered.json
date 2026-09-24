@@ -1,0 +1,25 @@
+{
+  "esco_source": "full_filtered",
+  "esco_index_size": 4241,
+  "distinct_course_skill_strings": 4229,
+  "exact_match_rate_on_vocab": 0.0426,
+  "paraphrase_eval": {
+    "exact_match": {
+      "top1": 0.0,
+      "top5": null,
+      "mrr5": null
+    },
+    "tfidf_cosine": {
+      "top1": 0.758,
+      "top5": 0.9256,
+      "mrr5": 0.8261
+    },
+    "embeddings": {
+      "top1": 0.7297,
+      "top5": 0.9273,
+      "mrr5": 0.8098
+    }
+  },
+  "course_vocab_threshold": 0.35,
+  "course_vocab_cleared_share": 0.6146
+}

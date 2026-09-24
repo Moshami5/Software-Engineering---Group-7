@@ -19,10 +19,30 @@ data/processed/*
 !data/processed/test.csv
 !data/processed/split_manifest.json
 
+# Committed data deliverables: the reproducible profiling stats and the readable
+# split/profile reports the write-up is built from (MODEL_PLAN.md sections 2, 4).
+!data/processed/split_report.md
+!data/processed/profile_report.md
+!data/processed/profile_stats.json
+
+# Model results the report is built from (every reported number lives in a file).
+!data/processed/model1_results.json
+!data/processed/model1_results.md
+!data/processed/model1_confusion.png
+!data/processed/model1_loss_curve.png
+!data/processed/model2_results_*.json
+!data/processed/model2_match_examples_*.csv
+
 # Generated model artefacts
 *.pt
 *.joblib
 *.pkl
+
+# ...but commit the small trained Model 1 pipelines so they can be loaded without
+# retraining. The 26 MB tfidf-svd-mlp is left out deliberately (too large for git;
+# regenerate deterministically by re-running the notebook).
+!data/processed/model1_majority-baseline.joblib
+!data/processed/model1_tfidf-logreg.joblib
 
 # Editors / OS
 .vscode/
