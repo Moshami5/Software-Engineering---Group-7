@@ -25,6 +25,13 @@ data/processed/*
 !data/processed/profile_report.md
 !data/processed/profile_stats.json
 
+# Model results the report is built from (every reported number lives in a file).
+!data/processed/model1_results.json
+!data/processed/model1_results.md
+!data/processed/model1_confusion.png
+!data/processed/model2_results_*.json
+!data/processed/model2_match_examples_*.csv
+
 # Generated model artefacts
 *.pt
 *.joblib
