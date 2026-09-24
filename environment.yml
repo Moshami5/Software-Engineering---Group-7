@@ -1,0 +1,11 @@
+name: CSAI
+channels:
+  - defaults
+dependencies:
+  - python=3.11
+  - ipykernel
+  - matplotlib
+  - numpy
+  - pandas
+  - scikit-learn
+prefix: C:\Users\jimal\anaconda3\envs\CSAI
