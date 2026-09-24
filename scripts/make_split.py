@@ -32,6 +32,7 @@ from src.data_contract import (  # noqa: E402
     LABEL_SITE,
     LOCALISED_LABEL_MAP,
     SEED,
+    SITE_COL,
     SPLIT_KEEP_COLS,
     TEST_FRAC,
 )
@@ -75,7 +76,7 @@ def main() -> None:
     courses = pd.read_csv(COURSES_CSV, low_memory=False)
 
     # 1. labelled rows only
-    df = courses[courses["Site"] == LABEL_SITE].copy()
+    df = courses[courses[SITE_COL] == LABEL_SITE].copy()
     n_labelled = len(df)
 
     # 2. map localised labels

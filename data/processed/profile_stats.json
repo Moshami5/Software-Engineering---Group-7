@@ -1,12 +1,12 @@
 {
-  "courses_rows": 8092,
-  "courses_cols": 45,
+  "courses_rows": 5275,
+  "courses_cols": 24,
   "fill_rates": {
-    "Title": 1.0,
-    "Short Intro": 0.9936,
-    "Category": 0.3484,
-    "Skills": 0.2594,
-    "URL": 1.0
+    "title": 1.0,
+    "short_intro": 0.9901,
+    "category": 0.5625,
+    "skills": 0.397,
+    "url": 1.0
   },
   "labelled_site": "Coursera",
   "labelled_rows": 2819,
@@ -32,8 +32,8 @@
   },
   "localised_label_rows": 7,
   "n_english_categories": 11,
-  "dup_url_rows": 2819,
-  "dup_text_rows": 3103,
+  "dup_url_rows": 2,
+  "dup_text_rows": 306,
   "distinct_course_skill_strings": 4229,
   "esco_label_set_size": 99624,
   "exact_matched_strings": 312,

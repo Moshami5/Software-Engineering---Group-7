@@ -4,17 +4,18 @@
   "labelled_rows": 2819,
   "localised_labels_mapped": 7,
   "dedup_keys": [
-    "Title",
-    "Short Intro"
+    "title",
+    "short_intro"
   ],
   "duplicate_rows_dropped": 242,
   "rows_after_dedup": 2577,
   "columns_kept": [
-    "Title",
-    "Short Intro",
-    "Category",
-    "Skills",
-    "URL"
+    "course_key",
+    "title",
+    "short_intro",
+    "category",
+    "skills",
+    "url"
   ],
   "split_sizes": {
     "train": 1805,
@@ -90,8 +91,8 @@
     }
   },
   "checksums_sha256": {
-    "train.csv": "4f07ec0b3b2d4b81af7dc5e1141e1196f458c256fc6b5a969df1aba4c38c9144",
-    "dev.csv": "9c8282be6a028352422678bc40f1f23f43057d72650c0d8c036769d8fb381dd4",
-    "test.csv": "99d0881649d9f478da46aa61d115362619574ea6b13bf98b55c676f86e8ec050"
+    "train.csv": "1ab28f83d7d699763c9ba6441a95cafa1a9d1e88e0f638f2f9c7e6522abc3d15",
+    "dev.csv": "2a83a1517f9758e3fef095e5542a8c20a6e33f5519fdc5f4180870b5d91a9b25",
+    "test.csv": "21e73fe4308d4b85760f73ae0d48fd86b73baf841ec06355a19e7d279b8099a6"
   }
 }

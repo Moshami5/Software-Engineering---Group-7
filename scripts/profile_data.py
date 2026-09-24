@@ -22,12 +22,14 @@ from src.data_contract import (  # noqa: E402
     DEDUP_KEYS,
     ENGLISH_CATEGORIES,
     ESCO_SKILLS_FULL_CSV,
+    KEY_COLS,
     LABEL_COL,
     LABEL_SITE,
     LOCALISED_LABEL_MAP,
+    SITE_COL,
+    SKILLS_COL,
+    URL_COL,
 )
-
-KEY_COLS = ["Title", "Short Intro", "Category", "Skills", "URL"]
 
 
 def split_skill_strings(series: pd.Series) -> set[str]:
@@ -67,7 +69,7 @@ def main() -> None:
         col: round(float(courses[col].notna().mean()), 4) for col in KEY_COLS
     }
 
-    labelled = courses[courses["Site"] == LABEL_SITE]
+    labelled = courses[courses[SITE_COL] == LABEL_SITE]
     stats["labelled_site"] = LABEL_SITE
     stats["labelled_rows"] = int(len(labelled))
 
@@ -79,11 +81,11 @@ def main() -> None:
     stats["n_english_categories"] = len(ENGLISH_CATEGORIES)
 
     # --- Duplicates (the leakage risk in section 7) ------------------------
-    stats["dup_url_rows"] = int(courses.duplicated(subset=["URL"]).sum())
+    stats["dup_url_rows"] = int(courses.duplicated(subset=[URL_COL]).sum())
     stats["dup_text_rows"] = int(courses.duplicated(subset=DEDUP_KEYS).sum())
 
     # --- Model-2 exact-match baseline (the section 4 finding) --------------
-    vocab = split_skill_strings(courses["Skills"])
+    vocab = split_skill_strings(courses[SKILLS_COL])
     esco_labels = esco_label_set(esco)
     matched = sum(1 for v in vocab if v in esco_labels)
     stats["distinct_course_skill_strings"] = len(vocab)
