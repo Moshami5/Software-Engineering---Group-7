@@ -29,6 +29,7 @@ data/processed/*
 !data/processed/model1_results.json
 !data/processed/model1_results.md
 !data/processed/model1_confusion.png
+!data/processed/model1_loss_curve.png
 !data/processed/model2_results_*.json
 !data/processed/model2_match_examples_*.csv
 
