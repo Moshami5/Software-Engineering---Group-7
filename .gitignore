@@ -38,6 +38,12 @@ data/processed/*
 *.joblib
 *.pkl
 
+# ...but commit the small trained Model 1 pipelines so they can be loaded without
+# retraining. The 26 MB tfidf-svd-mlp is left out deliberately (too large for git;
+# regenerate deterministically by re-running the notebook).
+!data/processed/model1_majority-baseline.joblib
+!data/processed/model1_tfidf-logreg.joblib
+
 # Editors / OS
 .vscode/
 .idea/
