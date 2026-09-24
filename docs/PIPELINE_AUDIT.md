@@ -6,9 +6,13 @@ what next. Anyone — a teammate or a fresh AI session — should be able to rea
 file* plus [`MODEL_PLAN.md`](MODEL_PLAN.md) and be fully oriented. Numbers here were
 verified directly against the CSVs in `data/` (see the appendix), not copied from the plan.
 
+<<<<<<< HEAD
 _Last audited: 2026-09-24. Regenerate the data numbers with `python scripts/profile_data.py`
 and `python scripts/make_split.py`; regenerate the model numbers by running the two notebooks
 in `notebooks/`._
+=======
+_Last audited: 2026-09-21. Regenerate the data numbers with `python scripts/profile_data.py`._
+>>>>>>> 3c1eb0baa1222d1668ad292773237c0004d7ca3a
 
 ---
 
@@ -34,6 +38,7 @@ alone.
 
 | File | Rows | What it is | Used by |
 |---|---|---|---|
+<<<<<<< HEAD
 | `Online_Courses_ml_features.csv` | 5,275 | **Model 1's input.** Cleaned, deduplicated, feature-engineered course table (24 snake_case cols + numeric features). Sites: Coursera 2,819 · Future Learn 2,031 · Udacity 277 · Simplilearn 148 | **Model 1 + Model 2** |
 | `Online_Courses.csv` | 8,092 | Original raw export (45 cols, many junk). **Retained for reference; the pipeline no longer reads it.** | — (raw ref) |
 | `skills_en.csv` | 13,960 | Full ESCO skills export (preferredLabel, altLabels, description, reuseLevel) | Model 2 (`full_filtered`) |
@@ -54,6 +59,25 @@ alone.
   now share an identical `title + short_intro` catalogue-wide. We still dedup on text within the
   Coursera label set (drops 242) before splitting — *not just URL* — so no course straddles the
   split (`MODEL_PLAN.md` §7).
+=======
+| `Online_Courses.csv` | 8,092 | Course catalogue, 45 columns (many junk). Sites: FutureLearn 4,843 · Coursera 2,819 · Udacity 282 · Simplilearn 148 | Model 1 + Model 2 |
+| `skills_en.csv` | 13,960 | Full ESCO skills export (preferredLabel, altLabels, description, reuseLevel) | Model 2 |
+| `skills_clean.csv` | 2,154 | A **cleaned subset** of ESCO skills — different taxonomy (see blocker §7) | Model 2 (disputed) |
+| `occupations_clean.csv` | 320 | ESCO occupations | not used by either model yet |
+| `relations_clean.csv` | 8,377 | Occupation↔skill graph | not used by either model yet |
+| `ISCOGroups_en.csv` | — | ISCO occupation groups | not used by either model yet |
+
+**Key facts about the course data (verified):**
+- `Category` (Model 1's label) exists on **only the 2,819 Coursera rows** — every other site is
+  unlabelled. Fill rate overall: 34.8%.
+- `Skills` (Model 2's input) is present on only **2,099 rows** (25.9%).
+- **11 canonical English categories**, plus 7 rows whose label is in another language
+  (Chinese/Spanish/Portuguese/Japanese) — unambiguous translations, so we **map** them.
+- Heavy class imbalance: Business 895 → Math & Logic 22.
+- **Duplication is severe:** 3,103 rows share an identical `Title + Short Intro`. Dedup on
+  text, *not just URL*, or the same course lands on both sides of the split and inflates every
+  score (`MODEL_PLAN.md` §7).
+>>>>>>> 3c1eb0baa1222d1668ad292773237c0004d7ca3a
 
 ---
 
@@ -133,6 +157,7 @@ examples. (Paraphrase test measures the method; course vocabulary measures the p
 ## 6. Repo layout & what has been built
 
 ```
+<<<<<<< HEAD
 data/                    raw CSVs (read-only), incl. team cleaning notebooks
 data/processed/          generated outputs (frozen split + reports + model results)
 src/data_contract.py     shared paths, snake_case column consts, label map, seed  [BUILT]
@@ -159,6 +184,24 @@ two cleaning notebooks (`Online_Courses_Cleaning_Complete.ipynb`,
 
 Scripts need only pandas + numpy. The notebooks additionally need scikit-learn, matplotlib, and
 (for the Model 2 embedding tier) sentence-transformers.
+=======
+data/                  raw CSVs (read-only)
+data/processed/        generated outputs (frozen split + reports)
+src/data_contract.py   shared paths, columns, label map, seed  [BUILT]
+scripts/profile_data.py  fill rates, dupes, exact-match finding  [BUILT]
+scripts/make_split.py    dedup + stratified 70/15/15 split       [BUILT]
+docs/MODEL_PLAN.md     the plan this pipeline follows
+docs/PIPELINE_AUDIT.md this file
+```
+
+**Already built and committed (branch `model/frozen-split-and-profiling`):**
+- `src/data_contract.py` — single source of truth so the scripts can't drift apart.
+- `scripts/profile_data.py` → writes `profile_report.md` + `profile_stats.json`.
+- `scripts/make_split.py` → writes frozen `train/dev/test.csv`, `split_manifest.json`,
+  `split_report.md`. Deterministic (seed 42); re-running gives identical output.
+
+Both scripts need **only pandas + numpy** and run in the current env.
+>>>>>>> 3c1eb0baa1222d1668ad292773237c0004d7ca3a
 
 ---
 
@@ -166,17 +209,27 @@ Scripts need only pandas + numpy. The notebooks additionally need scikit-learn, 
 
 | Piece | Status |
 |---|---|
+<<<<<<< HEAD
 | Cleaned course data (ML-features) + ESCO tables | ✅ committed (merged from `main`) |
 | Frozen train/dev/test split + profiling + test | ✅ built, retargeted to ML-features, 6/6 |
 | Model 1 (baselines + neural) | ✅ **run** — best tfidf-logreg, test macro-F1 0.772 |
 | Model 2 (exact-match + retrieval + eval) | ✅ **run** — both ESCO sources, altLabel eval |
 | `scikit-learn` / `sentence-transformers` | ✅ available in base Anaconda (used to run) |
 | ESCO design decision | ⚠️ **open** — plan vs implementation (see §8.1) |
+=======
+| Cleaned raw data (courses + ESCO) | ✅ committed |
+| Frozen train/dev/test split + profiling | ✅ built (branch, PR pending) |
+| Model 1 (baselines + neural) | ⬜ not started |
+| Model 2 (exact-match + retrieval + eval) | ⬜ not started |
+| `scikit-learn` / `sentence-transformers` installed | ❌ not in env |
+| ESCO target-space decision | ⚠️ **blocked** |
+>>>>>>> 3c1eb0baa1222d1668ad292773237c0004d7ca3a
 
 ---
 
 ## 8. Blockers & open decisions (raise with the group)
 
+<<<<<<< HEAD
 1. **⚠️ ESCO design: plan vs implementation — the one decision that matters.** This is *not*
    "which file has the right taxonomy" — it is two different products, both defensible:
    - **The plan (`MODEL_PLAN.md` §4)** specifies free-text matching against *transversal (453) +
@@ -196,6 +249,22 @@ Scripts need only pandas + numpy. The notebooks additionally need scikit-learn, 
    Data-criterion risk no modelling fixes.
 3. **Distribution shift.** Model 1 is trained on Coursera only but the catalogue is mostly
    non-Coursera — the classifier's generalisation across sites is unverified.
+=======
+1. **⚠️ ESCO target-space mismatch — blocks Model 2.** The plan (§4) wants to restrict the
+   search space to *transversal (453) + cross-sector (3,788) = 4,241* concepts from
+   `skills_en.csv`. But the committed `skills_clean.csv` has only **2,154 rows and no
+   `transversal` level at all** (its taxonomy is cross-sector/sector-specific/occupation-
+   specific). **Decide which file Model 2 indexes against before it starts.**
+2. **Environment.** `pip install scikit-learn sentence-transformers` before any baseline runs.
+   Confirm a sentence-transformer model actually downloads (do this early, not late).
+3. **Dataset reuse not cleared with the lecturer** — required by the brief, still open. A
+   Data-criterion risk no modelling fixes.
+4. **Unused data.** `occupations_clean.csv` / `relations_clean.csv` / `ISCOGroups_en.csv` are in
+   the repo but referenced by neither model — clarify whether they are a Data deliverable or an
+   intended richer Model 2 (skill → occupation → "where a path leads").
+5. **Distribution shift.** Model 1 is trained on Coursera only but the catalogue is mostly
+   FutureLearn — note that the classifier generalises across sites unverified.
+>>>>>>> 3c1eb0baa1222d1668ad292773237c0004d7ca3a
 
 ---
 
@@ -203,6 +272,7 @@ Scripts need only pandas + numpy. The notebooks additionally need scikit-learn, 
 
 Two owners (Musaed, Mohamed), one model each (`MODEL_PLAN.md` §8).
 
+<<<<<<< HEAD
 **Done:** frozen split (retargeted to the ML-features file), both model notebooks built and
 **executed**, all results written to `data/processed/`, frozen-split test passing 6/6.
 
@@ -217,11 +287,27 @@ Two owners (Musaed, Mohamed), one model each (`MODEL_PLAN.md` §8).
 
 Optional polish: 3-seed spread / confidence intervals for Model 1; a cross-encoder re-ranker tier
 for Model 2.
+=======
+**Shared, do first:**
+1. Get the frozen split merged (PR) so everyone trains on the same rows.
+2. Install `scikit-learn` + `sentence-transformers`.
+3. Resolve blocker §8.1 with the group.
+
+**Then, per track:**
+- **Model 1 owner** → `scripts/baseline_model1.py` (majority + TF-IDF/LogReg on the frozen
+  split) → then the neural model → per-class metrics + confidence intervals.
+- **Model 2 owner** → `scripts/baseline_exact_match.py` (formalise the 7.4% floor) → TF-IDF
+  cosine → embedding retrieval → the altLabel evaluation harness (§5).
+
+Every script writes its numbers to `data/processed/` so the one-page report is assembled from
+files, never notebook cells.
+>>>>>>> 3c1eb0baa1222d1668ad292773237c0004d7ca3a
 
 ---
 
 ## Appendix — verified numbers (source of truth)
 
+<<<<<<< HEAD
 Regenerate: `python scripts/profile_data.py`, `python scripts/make_split.py`, then run the two
 notebooks. All figures below are from the actual reruns on the ML-features file (2026-09-24).
 
@@ -281,3 +367,23 @@ only lower exact coverage, which strengthens, not weakens, the case for a retrie
 | ESCO transversal / cross-sector (in `skills_en`) | 453 / 3,788 |
 | ESCO occupation-linked skills (`skills_clean.csv`) | 2,154 |
 | ISCO groups (`isco_clean.csv`) | 619 |
+=======
+Run `python scripts/profile_data.py` and `python scripts/make_split.py` to regenerate.
+
+| Quantity | Value |
+|---|---|
+| Course rows / columns | 8,092 / 45 |
+| Coursera (labelled) rows | 2,819 |
+| Labelled rows after dedup + label mapping | 2,577 |
+| Text-duplicate rows dropped | 242 (within labelled set) |
+| Duplicate `Title+Short Intro` (whole catalogue) | 3,103 |
+| Localised category labels mapped to English | 7 |
+| Split — train / dev / test | 1,805 / 386 / 386 |
+| Biggest / smallest class (post-split total) | Business 824 / Math & Logic 22 |
+| Distinct course skill strings | 4,229 |
+| Model-2 exact-match rate | 7.4% (92.6% unmatched) |
+| ESCO full skills (`skills_en.csv`) | 13,960 |
+| ESCO transversal / cross-sector (in `skills_en`) | 453 / 3,788 |
+| ESCO cleaned subset (`skills_clean.csv`) | 2,154 (no `transversal` level) |
+| Seed | 42 |
+>>>>>>> 3c1eb0baa1222d1668ad292773237c0004d7ca3a
