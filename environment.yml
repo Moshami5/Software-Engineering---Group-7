@@ -8,4 +8,8 @@ dependencies:
   - numpy
   - pandas
   - scikit-learn
-prefix: C:\Users\jimal\anaconda3\envs\CSAI
+  - seaborn
+  - pip
+  - pip:
+      - sentence-transformers   # Model 2 embeddings (pulls in torch)
+      - nbconvert               # headless notebook execution (optional)
