@@ -91,8 +91,7 @@ reported number depends on the committed split, and the test fails if it changes
 | `docs/PIPELINE_AUDIT.md` | audit of the data and model pipeline |
 | `docs/TASK2_REPORT.md` | source text of the Task 2 report |
 
-The Task 3 SRS is edited in one place only: `reports/Task3_Group7_SRS.docx`. Word files
-cannot be merged by Git, so there is deliberately no second copy.
+
 
 ## Data
 
