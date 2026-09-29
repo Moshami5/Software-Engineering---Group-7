@@ -180,7 +180,7 @@ docs/PIPELINE_AUDIT.md   this file
 
 **Team files pulled in from `main`:** `Online_Courses_ml_features.csv`, `isco_clean.csv`, and the
 two cleaning notebooks (`Online_Courses_Cleaning_Complete.ipynb`,
-`ESCO_profile_cleaning_complete (1).ipynb`).
+`ESCO_profile_cleaning_complete.ipynb`).
 
 Scripts need only pandas + numpy. The notebooks additionally need scikit-learn, matplotlib, and
 (for the Model 2 embedding tier) sentence-transformers.
