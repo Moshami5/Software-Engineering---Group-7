@@ -26,6 +26,9 @@ OCCUPATIONS_CLEAN_CSV = DATA_RAW / "occupations_clean.csv"
 RELATIONS_CLEAN_CSV = DATA_RAW / "relations_clean.csv"   # essential occupation-skill links
 ISCO_CLEAN_CSV = DATA_RAW / "isco_clean.csv"             # ISCO occupation hierarchy
 
+# Model 1 saved pipeline (dev-selected best, see model1_results.md).
+MODEL1_PATH = DATA_PROCESSED / "model1_tfidf-logreg.joblib"
+
 # --- Reproducibility -----------------------------------------------------
 SEED = 42
 
