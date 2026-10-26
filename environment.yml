@@ -2,14 +2,22 @@ name: CSAI
 channels:
   - defaults
 dependencies:
-  - python=3.11
+  # Pinned to the environment that produced the committed results
+  # (data/processed/model1_results.json -> environment.python == 3.13.9).
+  # scikit-learn must match the version the saved .joblib models were
+  # pickled with (1.7.2), or loading them raises InconsistentVersionWarning.
+  - python=3.13.9
   - ipykernel
-  - matplotlib
-  - numpy
-  - pandas
-  - scikit-learn
-  - seaborn
+  - pandas=2.3.3
+  - numpy=2.3.5
+  - scikit-learn=1.7.2
+  - matplotlib=3.10.6
+  - seaborn=0.13.2
+  - pytest                           # runs tests/ (Task 5, CI)
   - pip
   - pip:
-      - sentence-transformers   # Model 2 embeddings (pulls in torch)
-      - nbconvert               # headless notebook execution (optional)
+      # torch pinned WITHOUT the +cpu local tag: 2.12.0+cpu is not on PyPI;
+      # the plain 2.12.0 PyPI wheel is the CPU build on Windows (same version).
+      - torch==2.12.0
+      - sentence-transformers==5.5.1   # Model 2 embeddings (all-MiniLM-L6-v2)
+      - nbconvert==7.16.6              # optional: headless notebook execution
