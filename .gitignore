@@ -24,6 +24,8 @@ data/processed/*
 !data/processed/split_report.md
 !data/processed/profile_report.md
 !data/processed/profile_stats.json
+# Volume / velocity / veracity figures for the Task 2 report (scripts/data_resources.py).
+!data/processed/data_resources.json
 
 # Model results the report is built from (every reported number lives in a file).
 !data/processed/model1_results.json

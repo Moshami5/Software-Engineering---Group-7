@@ -21,7 +21,7 @@ summarises the assignment, the rubric and the lecturer's feedback.
 | Task | Due | Status | Folder |
 |---|---|---|---|
 | 1 — Problem definition, goals, measurements | 11 Sep | submitted, then revised after lecturer feedback | [`tasks/task1/`](tasks/task1/) |
-| 2 — From data to AI | 25 Sep | submitted; lecturer feedback (1 Oct) still to apply | [`tasks/task2/`](tasks/task2/) |
+| 2 — From data to AI | 25 Sep | submitted; revised to v2 after lecturer feedback (1 Oct) | [`tasks/task2/`](tasks/task2/) |
 | 3 — Analysis (SRS) | 9 Oct | submitted; revised to v2 after lecturer feedback (20 Oct) | [`tasks/task3/`](tasks/task3/) |
 | 4 — Project management and implementation | 23 Oct | deadline missed, in progress | [`tasks/task4/`](tasks/task4/) |
 | 5 — Implementation and testing | 6 Nov | not started | [`tasks/task5/`](tasks/task5/) |
