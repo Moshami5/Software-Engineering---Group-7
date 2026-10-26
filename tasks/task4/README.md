@@ -35,4 +35,6 @@
 
 ## Files
 
-The half-page report goes here when written.
+| File | What it is |
+|---|---|
+| `Task4_Group7.docx` / `.pdf` | half-page report, submitted late on 26 Oct |
