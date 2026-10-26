@@ -15,15 +15,18 @@ Mohamed Elshami, Bilgin Eren.
 
 ## Status
 
-| Task | Due | Status | Where |
+Each task has its own folder under `tasks/` with the deliverables and a README that
+summarises the assignment, the rubric and the lecturer's feedback.
+
+| Task | Due | Status | Folder |
 |---|---|---|---|
-| 1 — Problem definition, goals, measurements | 11 Sep | submitted, then revised after lecturer feedback | `reports/Task1_Group7.*` (as submitted), `reports/Task1_Group7_revised.*` (use this one for the final report) |
-| 2 — From data to AI | 25 Sep | submitted | `reports/Task2_Group7.*` |
-| 3 — Analysis (SRS) | 9 Oct | in progress (draft) | `reports/Task3_Group7_SRS.*` |
-| 4 — Project management and implementation | 23 Oct | not started | |
-| 5 — Implementation and testing | 6 Nov | not started | |
-| 6 — Scaling up | 13 Nov | not started | |
-| 7 — Wrap up | 20 Nov | not started | |
+| 1 — Problem definition, goals, measurements | 11 Sep | submitted, then revised after lecturer feedback | [`tasks/task1/`](tasks/task1/) |
+| 2 — From data to AI | 25 Sep | submitted; lecturer feedback (1 Oct) still to apply | [`tasks/task2/`](tasks/task2/) |
+| 3 — Analysis (SRS) | 9 Oct | submitted; revised to v2 after lecturer feedback (20 Oct) | [`tasks/task3/`](tasks/task3/) |
+| 4 — Project management and implementation | 23 Oct | deadline missed, in progress | [`tasks/task4/`](tasks/task4/) |
+| 5 — Implementation and testing | 6 Nov | not started | [`tasks/task5/`](tasks/task5/) |
+| 6 — Scaling up | 13 Nov | not started | [`tasks/task6/`](tasks/task6/) |
+| 7 — Wrap up | 20 Nov | not started | [`tasks/task7/`](tasks/task7/) |
 
 ## Repository layout
 
@@ -49,8 +52,8 @@ src/data_contract.py          single source of truth: paths, columns, labels, se
 scripts/                      make_split.py, profile_data.py
 notebooks/                    model1_classifier.ipynb, model2_esco_matcher.ipynb
 tests/                        automated tests (pytest)
-docs/                         plans, audits and working drafts
-reports/                      submitted deliverables, one per task
+docs/                         plans and audits that span tasks
+tasks/task1/ … tasks/task7/   one folder per task: deliverables + README
 environment.yml               conda environment (CSAI)
 ```
 
@@ -89,7 +92,7 @@ reported number depends on the committed split, and the test fails if it changes
 |---|---|
 | `docs/MODEL_PLAN.md` | guide for the modelling work in Task 2 |
 | `docs/PIPELINE_AUDIT.md` | audit of the data and model pipeline |
-| `docs/TASK2_REPORT.md` | source text of the Task 2 report |
+| `tasks/task2/TASK2_REPORT.md` | source text of the Task 2 report |
 
 
 
