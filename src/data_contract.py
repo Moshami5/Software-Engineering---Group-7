@@ -26,6 +26,11 @@ OCCUPATIONS_CLEAN_CSV = DATA_RAW / "occupations_clean.csv"
 RELATIONS_CLEAN_CSV = DATA_RAW / "relations_clean.csv"   # essential occupation-skill links
 ISCO_CLEAN_CSV = DATA_RAW / "isco_clean.csv"             # ISCO occupation hierarchy
 
+# --- Runtime artefacts (see docs/INTERFACES.md) ----------------------------
+MODEL1_PATH = DATA_PROCESSED / "model1_tfidf-logreg.joblib"  # dev-selected Model 1
+ESCO_INDEX_CSV = ESCO_SKILLS_CLEAN_CSV  # Model 2 index: the 2,154 skills all reported numbers use
+THRESHOLDS_JSON = REPO_ROOT / "config" / "thresholds.json"
+
 # --- Reproducibility -----------------------------------------------------
 SEED = 42
 

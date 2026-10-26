@@ -1,0 +1,7 @@
+{
+  "_comment": "Score thresholds below which an AI output is withheld (SRS FR-13, AIR-3). null = not chosen yet; values are picked on the dev split only by the card '[FR-13 · AIR-3] Threshold config + withholding'. Reference: in Task 2, 65.9% of real course skills reached 0.35 with TF-IDF scores.",
+  "category": null,
+  "occupation": null,
+  "retrieval": null,
+  "skill": null
+}
