@@ -113,3 +113,25 @@ open. Add your own entry in the same pull request as the work.
   `tests/test_occupations_integration.py`, 3 tests with the real encoder ("software
   developer" → its skills; "electrician" and "I like cooking and baking" → no occupation).
   Whole suite with the real encoder: 109 passed.
+
+### FR-4: course retrieval — Mohamed, 3 Nov · branch `feature/fr4-course-retrieval` (builds on FR-3) · Trello "[FR-4] Course retrieval"
+
+- **What:** `src/retrieval.py`. A course is a candidate when one of its own skills links
+  to a required ESCO skill (links from `data/processed/skill_matches.csv`, the batch
+  preparation output). Candidates are ranked by how many required skills they cover, can
+  be narrowed by category, and at most 50 are returned, each with title, category and the
+  required skills it covers. No candidates → "no matching courses".
+  Required skills come from FR-3; when no occupation matched, from the ESCO skills closest
+  to the interest text (Model 2).
+- **Threshold:** skill links need a score ≥ 0.45 (parameter until the threshold config has
+  a "skill" value). Measured: "marketing and branding" → marketing skills at 0.52–0.59;
+  "electrician" only reaches noise at 0.37–0.39 and "I like cooking and baking" 0.36, so
+  both now return "no matching courses" instead of unrelated courses.
+- **Real results (3 Nov):** "software developer" → 50 courses led by DevOps, C programming
+  and Android developer certificates; "lawyer" → 50 led by European Business Law;
+  "marketing and branding" (no occupation, interest-text route) → 50 marketing and brand
+  courses. Retrieval takes 4–21 ms once the data is loaded (catalogue 0.1 s).
+- **Limit:** only courses that list skills can be retrieved (2,047 of 5,275 have ESCO links).
+- **Tests:** `tests/test_retrieval.py`, 8 unit tests with fake data; 
+  `tests/test_retrieval_integration.py`, 3 tests with real data and encoder (FR-3 + FR-4
+  together). Whole suite with the real encoder: 120 passed.
