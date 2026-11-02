@@ -2,7 +2,7 @@
 
 Single source of truth for paths, column names, the label vocabulary and the
 localised-label mapping, so the profiling and splitting scripts cannot drift
-apart. See docs/MODEL_PLAN.md sections 2, 6 and 7.
+apart. See tasks/task2/MODEL_PLAN.md sections 2, 6 and 7.
 
 Model 1 now trains on the team's cleaned, ML-ready course file
 (Online_Courses_ml_features.csv), not the raw export.
