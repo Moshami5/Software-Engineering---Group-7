@@ -88,3 +88,28 @@ open. Add your own entry in the same pull request as the work.
 - **Observed:** some predictions have low confidence, e.g. "Get Creative with People to
   Solve Problems" → Computer Science at 0.16. These are the cases the category threshold
   should turn into "uncategorised" (useful example for I1).
+
+---
+
+## Sprint 2 — 2 – 8 Nov 2026 (Task 5)
+
+### FR-3: required skills from the stated interest — Mohamed, 3 Nov · branch `feature/fr3-required-skills` · Trello "[FR-3] Match interest to ESCO occupation -> required skills"
+
+- **What:** `src/occupations.py`. `derive_required_skills(interest)` matches the interest
+  to the 319 ESCO occupations in `data/occupations_clean.csv` and returns the best ones
+  (at most 3) with the union of their essential skills from `data/relations_clean.csv`.
+  If no occupation clears the threshold it returns "no occupation matched", so course
+  retrieval (FR-4) falls back to the interest text. Occupations are indexed with the
+  Model 2 functions in `src/model_skills.py` (same encoder, same document format).
+- **Threshold:** default 0.55, a parameter until the team's threshold config has an
+  "occupation" value. Measured with the real encoder: clear occupations score 0.53–0.72
+  (software developer 0.72, lawyer 0.61, data scientist 0.59), vague interests 0.40–0.46,
+  unrelated text ≤ 0.33. "electrician" is not among the 319 professional occupations but
+  scores 0.51 for "data scientist", so 0.5 would accept a wrong match; 0.55 does not.
+- **Limit:** only professional occupations (ISCO major group 2) are in the cleaned data,
+  so trades such as electrician never match an occupation.
+- **Tests:** `tests/test_occupations.py`, 9 unit tests with a fake encoder and fake
+  occupations (threshold, skills without repeats, "no occupation matched", empty input);
+  `tests/test_occupations_integration.py`, 3 tests with the real encoder ("software
+  developer" → its skills; "electrician" and "I like cooking and baking" → no occupation).
+  Whole suite with the real encoder: 109 passed.
