@@ -1,6 +1,6 @@
 # Task 4 — Project management and implementation
 
-**Due:** Fri 23 Oct 2026, 18:00 · **Points:** 6 · **Status:** deadline missed; in progress (Sprint 1, 26 Oct – 1 Nov)
+**Due:** Fri 23 Oct 2026, 18:00 · **Points:** 6 · **Status:** submitted late on 26 Oct
 
 ## What was asked
 
