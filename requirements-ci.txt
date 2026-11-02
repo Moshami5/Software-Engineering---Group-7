@@ -1,0 +1,9 @@
+# Test dependencies for CI (.github/workflows/tests.yml).
+# Same pins as environment.yml, which stays the source of truth for local work:
+# change a version there and here together. torch is installed separately in the
+# workflow, from the CPU-only index, so CI does not download the CUDA build.
+pandas==2.3.3
+numpy==2.3.5
+scikit-learn==1.7.2   # must match the version the saved .joblib models were pickled with
+sentence-transformers==5.5.1
+pytest
