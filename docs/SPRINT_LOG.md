@@ -135,3 +135,22 @@ open. Add your own entry in the same pull request as the work.
 - **Tests:** `tests/test_retrieval.py`, 8 unit tests with fake data; 
   `tests/test_retrieval_integration.py`, 3 tests with real data and encoder (FR-3 + FR-4
   together). Whole suite with the real encoder: 120 passed.
+
+### FR-5: feasibility filter — Mohamed, 3 Nov · branch `feature/fr5-feasibility` (builds on FR-4) · Trello "[FR-5 · NFR-3] Feasibility filter"
+
+- **What:** `src/feasibility.py`, rule-based. `assess(candidates, context, facts)` removes
+  courses already completed (title, case-insensitive), taught in another language
+  ("Portuguese (Brazilian)" counts as Portuguese), or needing more hours per week than the
+  student has — each with its reason. A check whose field the student left empty is
+  skipped (FR-2); a course with missing language or hours is kept and labelled
+  "not listed" (NFR-3). Uses Melat's `src/study_context.py` (`is_given`, `label_missing`)
+  unchanged.
+- **Real example (3 Nov):** "software developer", English, 4 h/week, Meta Android
+  certificate completed → 50 candidates, 45 kept, 5 removed (1 "already completed",
+  4 "needs 6/7/10 hours per week, you have 4").
+- **Data limit:** weekly hours are listed for only 40% of courses (42 of the 45 kept here
+  are "not listed"), so the hours check rarely applies; language is listed for 53%.
+- **Tests:** `tests/test_feasibility.py`, 7 unit tests (each reason, skipped checks,
+  "not listed", language variants, order kept); `tests/test_feasibility_integration.py`,
+  1 test with real courses and a context validated by `study_context.py`.
+  Whole suite with the real encoder: 128 passed.
