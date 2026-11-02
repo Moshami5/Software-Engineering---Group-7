@@ -60,4 +60,31 @@ open. Add your own entry in the same pull request as the work.
   team" returns "cooperate with colleagues" but not "teamwork principles" in the top 5;
   "data analysis" returns "data analytics" (2nd) but not "perform data analysis". Results
   are sensible, but paraphrases do not always reach the most specific ESCO skill.
-- **Open:** none on this card; ready for review.
+- **Open:** none on this card. Merged via PR #8 on 2 Nov (approved by Musaed).
+
+### Study context (FR-2, NFR-3) — Melat, 2 Nov · PR #10 (approved by Musaed)
+
+- `src/study_context.py` and `tests/test_study_context.py`; missing fields shown as
+  "not given".
+
+### Batch catalogue preparation — Mohamed, 2 Nov · branch `feature/batch-catalogue-prep` · Trello "[FR-14 · FR-15 · NFR-4 · AIR-8] Batch catalogue preparation"
+
+- **What:** `scripts/prepare_catalogue.py` runs both models once over the 5,275 cleaned
+  courses and writes the results to `data/processed/` for look-up at query time (AIR-8):
+  - `catalogue_enriched.csv`: one row per course. `category` is the course's own label
+    when it has one (2,819 Coursera courses), otherwise Model 1's prediction (2,456);
+    0 courses left without a category. The prediction and its confidence are kept for
+    every course.
+  - `skill_matches.csv`: top-5 ESCO skills per distinct course skill. 4,229 distinct
+    skills, the same count as the Task 2 notebook, each matched once.
+  - `catalogue_prep_stats.json`: counts and run times.
+- **Decision:** scores are stored raw; thresholds (FR-13) are applied when results are
+  shown, so this step does not wait for the threshold card.
+- **Run time** (2 Nov, CPU, Windows 11): 104.5 s in total — 61.7 s building the ESCO
+  index, 38.9 s matching skills, 3.9 s classifying. Input for the Task 7 carbon footprint.
+- **Tests:** `tests/test_prepare_catalogue.py`, 10 unit tests with fake models (skill
+  splitting, label vs prediction, each distinct skill matched once, stats). Running the
+  real models end to end is integration test I3.
+- **Observed:** some predictions have low confidence, e.g. "Get Creative with People to
+  Solve Problems" → Computer Science at 0.16. These are the cases the category threshold
+  should turn into "uncategorised" (useful example for I1).
