@@ -2,14 +2,14 @@
 
 Per the SRS (Task 3, FR-2):
     Stored language, hours per week (1-40), weeks available (1-52) and completed
-    courses for the session. A missing field is shown as " not given" and its check
+    courses for the session. A missing field is shown as "not given" and its check
     in FR-5 is skipped.
 Per NFR-3, missing values must be labelled predictably instead of crashing: a 
 field the student left empty is "not given", and course data missing from the 
-catalouge is "not listed" (see "label_missing).
+catalogue is "not listed" (see `label_missing`).
 
-Same style as src/interest.py (FR-1): pure, dependency-free, no I/0, and the 
-validator returns a result object (".ok", then ".value" or ",error") rather than
+Same style as src/interest.py (FR-1): pure, dependency-free, no I/O, and the
+validator returns a result object (`.ok`, then `.value` or `.error`) rather than
 raising, so it is unit-testable in isolation.
 """
 from __future__ import annotations
@@ -28,7 +28,7 @@ HOURS_MESSAGE = (f"Hours per week must be a number from "
 WEEKS_MESSAGE = (f"Weeks available must be a number from "
                  f"{MIN_WEEKS_AVAILABLE} to {MAX_WEEKS_AVAILABLE}")
 LANGUAGE_MESSAGE = "Preferred language must be text, e.g. English"
-COURSES_MESSAGE = "Completed courses must ne a list of course titles"
+COURSES_MESSAGE = "Completed courses must be a list of course titles"
 
 
 FIELDS = ("language", "hours_per_week", "weeks_available", "completed_courses")
@@ -73,8 +73,8 @@ class StudyContext:
 class StudyContextResult:
     """Outcome of validating the study context (same shape as interest.ValidationResult).
 
-    ok     - True when every given is acceptable.
-    value  - teh cleaned StudyContext, set only when ok.
+    ok     - True when every given field is acceptable.
+    value  - the cleaned StudyContext, set only when ok.
     error  - the user-facing message for the first problem, set only when not ok.
     """
 
@@ -120,7 +120,7 @@ def _clean_courses(raw) -> tuple[bool, tuple[str,...]]:
 
 def validate_study_context(language=None, hours_per_week=None, weeks_available=None,
                            completed_courses=None) -> StudyContextResult:
-    """Validate teh study context against FR-2.
+    """Validate the study context against FR-2.
 
     Every field is optional. A given value must be valid; a missing one is stored 
     as None (shown as 'not given'). Returns a StudyContextResult; callers read
@@ -147,9 +147,9 @@ def validate_study_context(language=None, hours_per_week=None, weeks_available=N
 
     return StudyContextResult(True, value=StudyContext(lang, hours, weeks, courses))
 def label_missing(value, label: str = NOT_LISTED):
-    """NFR-3: return the value, or a fixec label if the catalouge has none.
+    """NFR-3: return the value, or a fixed label if the catalogue has none.
 
-    Used when shwoing course data (duration, language, weekly hours) so a missing
+    Used when showing course data (duration, language, weekly hours) so a missing
     value is labelled instead of breaking the output.
     """
 
