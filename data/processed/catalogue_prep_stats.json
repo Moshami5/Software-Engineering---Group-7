@@ -1,0 +1,14 @@
+{
+  "courses": 5275,
+  "category_source": {
+    "label": 2819,
+    "model": 2456
+  },
+  "courses_with_skills": 2094,
+  "distinct_course_skills": 4229,
+  "top_k": 5,
+  "classify_seconds": 3.94,
+  "match_seconds": 38.86,
+  "index_build_seconds": 61.74,
+  "total_seconds": 104.54
+}

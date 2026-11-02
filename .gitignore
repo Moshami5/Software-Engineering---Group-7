@@ -26,6 +26,11 @@ data/processed/*
 !data/processed/profile_stats.json
 # Volume / velocity / veracity figures for the Task 2 report (scripts/data_resources.py).
 !data/processed/data_resources.json
+# Batch catalogue preparation output (scripts/prepare_catalogue.py): looked up at query
+# time, so committed rather than recomputed per machine (~4 MB in total).
+!data/processed/catalogue_enriched.csv
+!data/processed/skill_matches.csv
+!data/processed/catalogue_prep_stats.json
 
 # Model results the report is built from (every reported number lives in a file).
 !data/processed/model1_results.json
