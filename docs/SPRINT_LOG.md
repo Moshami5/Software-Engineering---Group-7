@@ -154,3 +154,29 @@ open. Add your own entry in the same pull request as the work.
   "not listed", language variants, order kept); `tests/test_feasibility_integration.py`,
   1 test with real courses and a context validated by `study_context.py`.
   Whole suite with the real encoder: 128 passed.
+
+### FR-6 + FR-7: study paths and ranking — Mohamed, 3 Nov · branch `feature/fr6-fr7-paths` (builds on FR-5) · Trello "[FR-6] Path composition", "[FR-7] Ranking + shortlist of 3-5 paths"
+
+- **What:** `src/paths.py`. `build_paths()` starts a path from each feasible course and keeps
+  adding the course that covers the most still-missing *required* skills while the total
+  fits the weeks available (FR-6); courses without a duration are left out and counted.
+  Paths are scored by the share of required skills covered, ordered by score with ties to
+  the shorter path, and 3–5 are returned, or fewer with "only N paths fit your
+  constraints" (FR-7).
+- **Durations → weeks** (agreed 3 Nov): weeks as listed, months × 4.3, days ÷ 7; hours and
+  minutes are total study time (duration basis "study_time" in the data) ÷ the student's
+  hours per week. Two defaults chosen while building: 5 hours/week when the student gave
+  none (so hour-based courses, 44% of the catalogue, still count), and at most 5 courses
+  per path when no weeks were given.
+- **Found and fixed while testing:** (1) a course was added for skills that were not
+  required — now only required skills count; (2) the catalogue lists some courses twice
+  under different keys, which produced two identical-looking paths — paths with the same
+  titles now count once. Both have unit tests.
+- **Real example (3 Nov):** "marketing and branding", English, 4 h/week, 12 weeks → 5 paths
+  covering all marketing skills in 3–6.5 weeks. "software developer", 6 h/week, 20 weeks →
+  5 paths covering 26–28% of its 46 required skills in ~19 weeks. Whole chain FR-3→FR-7:
+  47 ms once loaded.
+- **Tests:** `tests/test_paths.py`, 16 unit tests (unit conversion, budget, required-only
+  skills, ties, left-out count, messages, at most 5, duplicates);
+  `tests/test_advisor_chain_integration.py`, 1 test running FR-3→FR-7 on real data.
+  Whole suite with the real encoder: 145 passed.
