@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Task 5 – Testing Demo</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+  /* Presentation shell: slides are a fixed 1920x1080 canvas, scaled to fit. */
+  html, body { margin: 0; height: 100%; background: #0F1424; overflow: hidden; }
+  body { font-family: 'IBM Plex Sans', Arial, sans-serif; }
+  #viewport { position: absolute; inset: 0 0 56px 0; }
+  body.notes #viewport { bottom: 216px; }
+  #stage { position: absolute; width: 1920px; height: 1080px; transform-origin: 0 0; }
+  #stage section { position: absolute; inset: 0; width: 1920px; height: 1080px; box-sizing: border-box; overflow: hidden; }
+  #stage section:not(.active) { display: none !important; }
+  #stage section * { margin: 0; box-sizing: border-box; }
+  #stage aside { display: none; }
+  #stage table { border-collapse: collapse; width: 100%; }
+  #stage th, #stage td { padding: 0.35em 0.6em; border-bottom: 1px solid #DDDAD0; vertical-align: top; }
+  #stage th { font-weight: 600; }
+  .arrow { flex: none; width: 72px; display: flex; align-items: center; }
+
+  /* Controls and notes */
+  #bar { position: absolute; left: 0; right: 0; bottom: 0; height: 56px; display: flex; align-items: center; gap: 12px; padding: 0 16px; background: #18213A; color: #B9C2D6; font-size: 15px; }
+  #bar button { font: inherit; color: #F5F4EF; background: #2A3554; border: 0; border-radius: 8px; padding: 8px 14px; cursor: pointer; }
+  #bar button:hover { background: #36446A; }
+  #bar .spacer { flex: 1; }
+  #count { min-width: 120px; }
+  #notes { display: none; position: absolute; left: 0; right: 0; bottom: 56px; height: 160px; overflow-y: auto; padding: 16px 24px; background: #F5F4EF; color: #18213A; font-size: 17px; line-height: 1.5; border-top: 4px solid #B4531C; box-sizing: border-box; }
+  body.notes #notes { display: block; }
+  @media (max-width: 600px) { #bar { font-size: 13px; gap: 6px; } #bar .hint { display: none; } }
+</style>
+</head>
+<body>
+<div id="viewport"><div id="stage">
+
+<section id="cover" style="background:#18213A;color:#F5F4EF;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:space-between">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:28px;color:#F0A36B;letter-spacing:2px">TASK 5 · IMPLEMENTATION AND TESTING</p>
+<div style="display:flex;flex-direction:column;gap:40px">
+<h1 style="font-size:112px;font-weight:600;line-height:1.05;color:#F5F4EF">Testing the study-path advisor</h1>
+<p style="font-size:40px;line-height:1.35;color:#B9C2D6;max-width:1400px">How we test that a student’s interest is captured correctly and that every course gets a category it can trust.</p>
+</div>
+<div style="display:flex;justify-content:space-between;align-items:end">
+<p style="font-size:28px;line-height:1.5;color:#B9C2D6">Group 7 · Musaed Al-Fareh, Melat Assefa, Alexia Cobzaru,<br>Raluca Costache, Mohamed Elshami, Bilgin Eren</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:28px;color:#F5F4EF;background:#2A3554;padding:16px 28px;border-radius:12px">35 tests · all pass</p>
+</div>
+<aside>(0:20) Open with what the system does: a student types an interest, we return study paths. Today we show how we test two pieces of it that are built now: capturing the interest (FR-1) and classifying courses with Model 1 (FR-14). Everything on these slides runs with one command, python -m pytest tests.</aside>
+</section>
+
+<section id="system" style="background:#F5F4EF;color:#18213A;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:56px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#2C64A8;letter-spacing:2px">WHAT IS UNDER TEST</p>
+<h2 style="font-size:64px;font-weight:600;line-height:1.15">Two pieces of the pipeline are built and tested</h2>
+</div>
+<div style="display:flex;flex-direction:column;gap:20px">
+<p style="font-size:26px;font-weight:600;color:#4A5263">FR-1 · capture the student’s interest</p>
+<div style="display:flex;align-items:center;gap:16px">
+<div style="flex:1;background:#FCFBF8;border:1px solid #DDDAD0;border-radius:16px;padding:28px"><p style="font-size:28px;line-height:1.3">Student types an interest</p></div>
+<div class="arrow"><svg width="72" height="20" viewBox="0 0 72 20" aria-hidden="true"><line x1="0" y1="10" x2="60" y2="10" stroke="#4A5263" stroke-width="2"/><polygon points="58,3 72,10 58,17" fill="#4A5263"/></svg></div>
+<div style="flex:1;background:#FCFBF8;border:2px solid #2C64A8;border-radius:16px;padding:28px"><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:28px;font-weight:600;color:#2C64A8">validate_interest()</p></div>
+<div class="arrow"><svg width="72" height="20" viewBox="0 0 72 20" aria-hidden="true"><line x1="0" y1="10" x2="60" y2="10" stroke="#4A5263" stroke-width="2"/><polygon points="58,3 72,10 58,17" fill="#4A5263"/></svg></div>
+<div style="flex:1;background:#FCFBF8;border:1px solid #DDDAD0;border-radius:16px;padding:28px"><p style="font-size:28px;line-height:1.3">Kept, or refused: “Please describe an interest”</p></div>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:20px">
+<p style="font-size:26px;font-weight:600;color:#4A5263">FR-14 · give every course a category (Model 1)</p>
+<div style="display:flex;align-items:center;gap:16px">
+<div style="flex:1;background:#FCFBF8;border:1px solid #DDDAD0;border-radius:16px;padding:28px"><p style="font-size:28px;line-height:1.3">Course title and intro</p></div>
+<div class="arrow"><svg width="72" height="20" viewBox="0 0 72 20" aria-hidden="true"><line x1="0" y1="10" x2="60" y2="10" stroke="#4A5263" stroke-width="2"/><polygon points="58,3 72,10 58,17" fill="#4A5263"/></svg></div>
+<div style="flex:1;background:#FCFBF8;border:2px solid #2C64A8;border-radius:16px;padding:28px"><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:28px;font-weight:600;color:#2C64A8">course_text()</p></div>
+<div class="arrow"><svg width="72" height="20" viewBox="0 0 72 20" aria-hidden="true"><line x1="0" y1="10" x2="60" y2="10" stroke="#4A5263" stroke-width="2"/><polygon points="58,3 72,10 58,17" fill="#4A5263"/></svg></div>
+<div style="flex:1;background:#FCFBF8;border:2px solid #2C64A8;border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:8px"><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:28px;font-weight:600;color:#2C64A8">classify()</p><p style="font-size:24px;color:#4A5263">→ (category, confidence)</p></div>
+<div class="arrow"><svg width="72" height="20" viewBox="0 0 72 20" aria-hidden="true"><line x1="0" y1="10" x2="60" y2="10" stroke="#4A5263" stroke-width="2" stroke-dasharray="8 6"/><polygon points="58,3 72,10 58,17" fill="#4A5263"/></svg></div>
+<div style="flex:1;background:#F5F4EF;border:2px dashed #8A8F9C;border-radius:16px;padding:28px"><p style="font-size:28px;line-height:1.3;color:#4A5263">Threshold, FR-13 (next card)</p></div>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1200px;font-size:24px;color:#6A7080">Group 7 · Task 5 · Testing</p>
+<p style="position:absolute;right:128px;bottom:64px;width:200px;font-size:24px;color:#6A7080;text-align:right">2</p>
+<aside>(0:45) The blue boxes are the code we wrote and test. FR-1: validate_interest takes what the student typed and either keeps it or refuses it with the exact message from our SRS. FR-14: course_text builds the model's input exactly as in training, title plus a full stop plus intro; classify loads the saved Model 1 pipeline (TF-IDF plus logistic regression) and returns the category with the highest probability and that probability. Deciding "uncategorised" below a threshold is the FR-13 card, not built yet, which is why that box is dashed.</aside>
+</section>
+
+<section id="strategy" style="background:#F5F4EF;color:#18213A;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:56px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#2C64A8;letter-spacing:2px">HOW WE SPLIT THE TESTS</p>
+<h2 style="font-size:64px;font-weight:600;line-height:1.15">Unit or integration: one rule keeps them apart</h2>
+</div>
+<div style="display:flex;gap:40px">
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;background:#FCFBF8;border:1px solid #DDDAD0;border-top:8px solid #2C64A8;border-radius:16px;padding:48px">
+<div style="display:flex;justify-content:space-between;align-items:baseline"><h3 style="font-size:44px;font-weight:600;color:#2C64A8">Unit</h3><p style="font-size:64px;font-weight:600;color:#2C64A8">20</p></div>
+<p style="font-size:30px;line-height:1.4;font-weight:600">One function, a known input, an asserted output.</p>
+<p style="font-size:28px;line-height:1.45;color:#4A5263">Nothing is read from disk. To test classify() alone, the real model is swapped for a fake that always answers 0.2 / 0.7 / 0.1, so the right answer is known in advance.</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;background:#FCFBF8;border:1px solid #DDDAD0;border-top:8px solid #B4531C;border-radius:16px;padding:48px">
+<div style="display:flex;justify-content:space-between;align-items:baseline"><h3 style="font-size:44px;font-weight:600;color:#B4531C">Integration</h3><p style="font-size:64px;font-weight:600;color:#B4531C">15</p></div>
+<p style="font-size:30px;line-height:1.4;font-weight:600">Real parts working together.</p>
+<p style="font-size:28px;line-height:1.45;color:#4A5263">The saved model file, our module, the data contract, the frozen data split and the recorded results, checked against each other.</p>
+</div>
+</div>
+<p style="font-size:30px;line-height:1.4;background:#18213A;color:#F5F4EF;padding:28px 40px;border-radius:16px">The rule: <b>if a test loads a real file, it is an integration test.</b> Otherwise it is a unit test.</p>
+<p style="position:absolute;left:128px;bottom:64px;width:1200px;font-size:24px;color:#6A7080">Group 7 · Task 5 · Testing</p>
+<p style="position:absolute;right:128px;bottom:64px;width:200px;font-size:24px;color:#6A7080;text-align:right">3</p>
+<aside>(0:45) The rubric marks us down if a unit test is really a component test, so we used one simple rule. A unit test never touches a file: for classify we replace the real model with a small fake model with fixed probabilities, so the test checks only our code, picking the top class and returning the right types, not scikit-learn. An integration test uses the real saved model, the real data split and the recorded results together. Counts: 20 unit (7 FR-1, 9 FR-14, 4 interface contract tests) and 15 integration (8 Model 1, 6 frozen split, 1 threshold config).</aside>
+</section>
+
+<section id="unit-fr1" style="background:#F5F4EF;color:#18213A;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:32px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#2C64A8;letter-spacing:2px">UNIT · tests/test_interest.py</p>
+<h2 style="font-size:64px;font-weight:600;line-height:1.15">Unit tests: capturing the interest (FR-1)</h2>
+</div>
+<p style="font-size:26px;line-height:1.4;color:#4A5263">From our SRS: <i>“Accepts 1–500 characters of free text… Empty input is refused with ‘Please describe an interest’.”</i></p>
+<table style="font-size:24px;color:#18213A;background:#FCFBF8;border:1px solid #DDDAD0">
+<tr style="background:#E6ECF5"><th style="width:24%;text-align:left">Test case</th><th style="width:28%;text-align:left">Input</th><th style="width:38%;text-align:left">Expected output</th><th style="width:10%;text-align:left">Result</th></tr>
+<tr><td>Normal interest</td><td>"I want to work in data science"</td><td>accepted, text unchanged</td><td>pass</td></tr>
+<tr><td>Spaces around it</td><td>"&nbsp;&nbsp;machine learning&nbsp;&nbsp;"</td><td>accepted as "machine learning"</td><td>pass</td></tr>
+<tr><td>Empty</td><td>""</td><td>refused: "Please describe an interest"</td><td>pass</td></tr>
+<tr><td>Only whitespace</td><td>"&nbsp;&nbsp;&nbsp;\t\n "</td><td>refused, same message</td><td>pass</td></tr>
+<tr><td>Missing</td><td>None</td><td>refused, same message, no crash</td><td>pass</td></tr>
+<tr style="background:#EEF2F8"><td>Upper boundary</td><td>"a" × 500</td><td>accepted</td><td>pass</td></tr>
+<tr style="background:#EEF2F8"><td>Just over it</td><td>"a" × 501</td><td>refused: length message</td><td>pass</td></tr>
+</table>
+<p style="position:absolute;left:128px;bottom:64px;width:1200px;font-size:24px;color:#6A7080">Group 7 · Task 5 · Testing</p>
+<p style="position:absolute;right:128px;bottom:64px;width:200px;font-size:24px;color:#6A7080;text-align:right">4</p>
+<aside>(0:50) Every expected output comes straight from the SRS acceptance criterion for FR-1, so these tests check that we built what we promised. The two shaded rows are boundary tests: 500 characters is the last valid length and 501 the first invalid one. Off-by-one mistakes happen exactly at a boundary, so testing both sides of it is the cheapest way to catch them. Each test calls one function, validate_interest, with no files and no other modules.</aside>
+</section>
+
+<section id="unit-fr14" style="background:#F5F4EF;color:#18213A;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:32px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#2C64A8;letter-spacing:2px">UNIT · tests/test_model_category.py</p>
+<h2 style="font-size:64px;font-weight:600;line-height:1.15">Unit tests: classifying a course (FR-14)</h2>
+</div>
+<p style="font-size:26px;line-height:1.4;color:#4A5263">Fake model instead of the real one: classes Business, Computer Science, Health, always answering <b>0.2, 0.7, 0.1</b>.</p>
+<table style="font-size:24px;color:#18213A;background:#FCFBF8;border:1px solid #DDDAD0">
+<tr style="background:#E6ECF5"><th style="width:22%;text-align:left">Test case</th><th style="width:34%;text-align:left">Input</th><th style="width:34%;text-align:left">Expected output</th><th style="width:10%;text-align:left">Result</th></tr>
+<tr><td>Picks the top class</td><td>("Python", "Learn the basics")</td><td>("Computer Science", 0.7)</td><td>pass</td></tr>
+<tr><td>Sends the right text</td><td>("Python", "Learn the basics")</td><td>model receives "Python. Learn the basics"</td><td>pass</td></tr>
+<tr><td>Plain Python types</td><td>("Python", "Learn the basics")</td><td>str and float, not numpy types</td><td>pass</td></tr>
+<tr><td>Title only</td><td>("Python", None)</td><td>("Computer Science", 0.7)</td><td>pass</td></tr>
+<tr><td>Empty input (4 cases)</td><td>("", ""), (None, None), ("&nbsp;&nbsp;&nbsp;", "\t"), (NaN, None)</td><td>ValueError, and the model is never loaded</td><td>4 pass</td></tr>
+<tr><td>Missing title</td><td>course_text(NaN, "Learn the basics")</td><td>". Learn the basics", not "nan."</td><td>pass</td></tr>
+</table>
+<p style="position:absolute;left:128px;bottom:64px;width:1200px;font-size:24px;color:#6A7080">Group 7 · Task 5 · Testing</p>
+<p style="position:absolute;right:128px;bottom:64px;width:200px;font-size:24px;color:#6A7080;text-align:right">5</p>
+<aside>(0:50) Because the fake model always answers 0.2, 0.7, 0.1, we know the correct output before running: Computer Science with confidence 0.7. That makes each input and expected output exact, which is what the rubric asks for. The empty-input test also proves the model is never loaded: we replace the loader with one that fails the test if it is called. The missing-title test covers a bug we fixed: an empty title cell became the word "nan". Four more unit tests come from Mohamed's interface work (PR 7): course_text joins title and intro, handles a missing intro, there are 11 categories, and the SkillMatch fields for Model 2.</aside>
+</section>
+
+<section id="integration" style="background:#F5F4EF;color:#18213A;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:32px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#B4531C;letter-spacing:2px">INTEGRATION · tests/test_model_category_integration.py</p>
+<h2 style="font-size:64px;font-weight:600;line-height:1.15">Integration tests: the real Model 1, end to end</h2>
+</div>
+<p style="font-size:26px;line-height:1.4;color:#4A5263">Every test runs the saved model file through our module. The second line says which parts work together.</p>
+<table style="font-size:24px;color:#18213A;background:#FCFBF8;border:1px solid #DDDAD0">
+<tr style="background:#F6E6DA"><th style="width:32%;text-align:left">Test case</th><th style="width:22%;text-align:left">Input data</th><th style="width:36%;text-align:left">Expected output</th><th style="width:10%;text-align:left">Result</th></tr>
+<tr><td><b>Model matches the contract</b><br><span style="color:#6A7080">model file + data contract</span></td><td>saved Model 1 file</td><td>its 11 classes = the 11 categories in the data contract</td><td>pass</td></tr>
+<tr><td><b>Reproduces recorded results</b><br><span style="color:#6A7080">model + module + split + results</span></td><td>test split, 386 courses</td><td>accuracy 0.7953, macro-F1 0.7721, as in model1_results.json</td><td>pass</td></tr>
+<tr><td><b>Valid output on all of dev</b><br><span style="color:#6A7080">model + module + dev split</span></td><td>dev split, 386 courses</td><td>one of the 11 categories; confidence between 1/11 and 1</td><td>pass</td></tr>
+<tr><td><b>Obvious courses (5 cases)</b><br><span style="color:#6A7080">model + module</span></td><td>“Learn Spanish” + intro, and 4 more</td><td>Language Learning, Computer Science, Business, Health, Data Science</td><td>5 pass</td></tr>
+</table>
+<p style="position:absolute;left:128px;bottom:64px;width:1200px;font-size:24px;color:#6A7080">Group 7 · Task 5 · Testing</p>
+<p style="position:absolute;right:128px;bottom:64px;width:200px;font-size:24px;color:#6A7080;text-align:right">6</p>
+<aside>(1:00) The most important one is "reproduces recorded results": it pushes all 386 test courses through classify and gets exactly the accuracy and macro-F1 the notebook recorded. That proves turning the notebook into a module changed nothing, and it fails if someone retrains the model, changes how the text is built, or upgrades scikit-learn in a way that changes predictions. Confidence can never be below 1/11 because the top of 11 probabilities that sum to 1 is at least 1/11. Be honest about the obvious-courses test: we wrote those 5 courses ourselves, so it is a regression check that the model does not get worse on clear cases, not proof of accuracy. The 0.77 macro-F1 is the accuracy evidence.</aside>
+</section>
+
+<section id="integration-data" style="background:#F5F4EF;color:#18213A;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:32px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#B4531C;letter-spacing:2px">INTEGRATION · test_frozen_split.py · test_interfaces.py</p>
+<h2 style="font-size:64px;font-weight:600;line-height:1.15">Integration tests: data and configuration</h2>
+</div>
+<p style="font-size:26px;line-height:1.4;color:#4A5263">The split files, their manifest and the data contract must agree, or no reported number can be trusted.</p>
+<table style="font-size:24px;color:#18213A;background:#FCFBF8;border:1px solid #DDDAD0">
+<tr style="background:#F6E6DA"><th style="width:22%;text-align:left">Test case</th><th style="width:30%;text-align:left">Input data</th><th style="width:38%;text-align:left">Expected output</th><th style="width:10%;text-align:left">Result</th></tr>
+<tr><td>Files exist</td><td>data/processed/</td><td>train, dev, test and manifest present</td><td>pass</td></tr>
+<tr><td>Checksums</td><td>the 3 split files</td><td>sha256 of each = the manifest</td><td>pass</td></tr>
+<tr><td>Seed</td><td>split_manifest.json</td><td>seed 42 = the data contract’s seed</td><td>pass</td></tr>
+<tr><td>Sizes</td><td>the 3 split files</td><td>1,805 / 386 / 386 rows = the manifest</td><td>pass</td></tr>
+<tr><td>No leakage</td><td>title + intro in each split</td><td>no course text in two splits</td><td>pass</td></tr>
+<tr><td>All classes</td><td>category column per split</td><td>the same 11 classes in all three</td><td>pass</td></tr>
+<tr><td>Threshold config</td><td>config/thresholds.json</td><td>all 4 kinds present, each empty or 0–1</td><td>pass</td></tr>
+</table>
+<p style="position:absolute;left:128px;bottom:64px;width:1200px;font-size:24px;color:#6A7080">Group 7 · Task 5 · Testing</p>
+<p style="position:absolute;right:128px;bottom:64px;width:200px;font-size:24px;color:#6A7080;text-align:right">7</p>
+<aside>(0:40) These guard the data every other number depends on. The split was made once with seed 42 and committed; its manifest records a sha256 fingerprint of each file. If anyone regenerates or edits the split, the checksum test fails and tells us that metrics from before and after are no longer comparable. The leakage test makes sure no course appears in both training and test data, which would inflate our accuracy. The threshold config test (from Mohamed's interface work) checks the config file the FR-13 card will fill in.</aside>
+</section>
+
+<section id="results" style="background:#18213A;color:#F5F4EF;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;justify-content:space-between">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#F0A36B;letter-spacing:2px">RESULTS · python -m pytest tests</p>
+<div style="display:flex;flex-direction:column;gap:16px">
+<h1 style="font-size:200px;font-weight:600;line-height:1">35 of 35 pass</h1>
+<p style="font-size:40px;color:#B9C2D6">in about 7 seconds, on every run</p>
+</div>
+<div style="display:flex;gap:32px">
+<div style="flex:1;display:flex;flex-direction:column;gap:8px;background:#2A3554;border-radius:16px;padding:32px 36px"><p style="font-size:56px;font-weight:600;color:#8DB4E8">20</p><p style="font-size:28px;color:#B9C2D6">unit tests</p></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:8px;background:#2A3554;border-radius:16px;padding:32px 36px"><p style="font-size:56px;font-weight:600;color:#F0A36B">15</p><p style="font-size:28px;color:#B9C2D6">integration tests</p></div>
+<div style="flex:2;display:flex;flex-direction:column;gap:8px;background:#2A3554;border-radius:16px;padding:32px 36px"><p style="font-size:56px;font-weight:600;color:#F5F4EF">0.7953 · 0.7721</p><p style="font-size:28px;color:#B9C2D6">test accuracy and macro-F1, reproduced exactly</p></div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1200px;font-size:24px;color:#8A93AA">Group 7 · Task 5 · Testing</p>
+<p style="position:absolute;right:128px;bottom:64px;width:200px;font-size:24px;color:#8A93AA;text-align:right">8</p>
+<aside>(0:20) All 35 tests pass. The required minimum is 5 unit and 3 integration tests; we have 20 and 15. The whole suite takes about 7 seconds; the slowest test is under a second, and it classifies all 386 test courses. Macro-F1 is our headline metric because the categories are imbalanced: Business is about a third of the courses, so plain accuracy would flatter us. Macro-F1 counts every category equally.</aside>
+</section>
+
+<section id="demo" style="background:#F5F4EF;color:#18213A;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#B4531C;letter-spacing:2px">LIVE DEMO</p>
+<h2 style="font-size:64px;font-weight:600;line-height:1.15">Live demo: four steps</h2>
+</div>
+<div style="display:flex;flex-direction:column;gap:20px">
+<div style="display:flex;align-items:center;gap:32px;background:#FCFBF8;border:1px solid #DDDAD0;border-radius:16px;padding:24px 32px"><p style="font-size:44px;font-weight:600;color:#B4531C;width:56px">1</p><p style="font-size:30px;font-weight:600;width:340px">Run everything</p><p style="flex:1;font-family:'JetBrains Mono', 'Courier New', monospace;font-size:26px">python -m pytest tests -v</p><p style="font-size:28px;color:#4A5263;width:340px">35 passed</p></div>
+<div style="display:flex;align-items:center;gap:32px;background:#FCFBF8;border:1px solid #DDDAD0;border-radius:16px;padding:24px 32px"><p style="font-size:44px;font-weight:600;color:#B4531C;width:56px">2</p><p style="font-size:30px;font-weight:600;width:340px">Show one test</p><p style="flex:1;font-family:'JetBrains Mono', 'Courier New', monospace;font-size:26px">tests/test_interest.py</p><p style="font-size:28px;color:#4A5263;width:340px">the 500 / 501 boundary</p></div>
+<div style="display:flex;align-items:center;gap:32px;background:#FCFBF8;border:1px solid #DDDAD0;border-radius:16px;padding:24px 32px"><p style="font-size:44px;font-weight:600;color:#B4531C;width:56px">3</p><p style="font-size:30px;font-weight:600;width:340px">Break the code</p><p style="flex:1;font-family:'JetBrains Mono', 'Courier New', monospace;font-size:26px">delete the "." in course_text()</p><p style="font-size:28px;color:#4A5263;width:340px">8 failed, all unit</p></div>
+<div style="display:flex;align-items:center;gap:32px;background:#FCFBF8;border:1px solid #DDDAD0;border-radius:16px;padding:24px 32px"><p style="font-size:44px;font-weight:600;color:#B4531C;width:56px">4</p><p style="font-size:30px;font-weight:600;width:340px">Restore</p><p style="flex:1;font-family:'JetBrains Mono', 'Courier New', monospace;font-size:26px">git checkout -- src/model_category.py</p><p style="font-size:28px;color:#4A5263;width:340px">35 passed again</p></div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1200px;font-size:24px;color:#6A7080">Group 7 · Task 5 · Testing</p>
+<p style="position:absolute;right:128px;bottom:64px;width:200px;font-size:24px;color:#6A7080;text-align:right">9</p>
+<aside>(2:30) Before class: conda activate CSAI, then conda env update -n CSAI -f environment.yml --prune, so scikit-learn is 1.7.2 and no warnings appear. Run from the repo root. Step 1: run the whole suite with -v so the class sees each test name, 35 passed in about 7 seconds. Step 2: open tests/test_interest.py and point at the 500 and 501 character tests: input and expected output in two lines each. Step 3: in src/model_category.py, in course_text, change f"{title}. {intro}" to f"{title} {intro}" and run the suite again: 8 unit tests fail and every integration test still passes. Say why: the model ignores punctuation, so its predictions did not change, but the code broke its contract with training. Unit tests guard the code's contract, integration tests guard what the user sees, so we need both. Keep the whole demo under 2.5 minutes. Step 4: git checkout restores the file, run again, 35 passed. Have a screenshot of each step as a backup in case the laptop or projector fails.</aside>
+</section>
+
+<section id="trace" style="background:#F5F4EF;color:#18213A;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#2C64A8;letter-spacing:2px">IMPLEMENTATION PROGRESS</p>
+<h2 style="font-size:64px;font-weight:600;line-height:1.15">Every commit follows a card on the board</h2>
+</div>
+<table style="font-size:26px;color:#18213A;background:#FCFBF8;border:1px solid #DDDAD0">
+<tr style="background:#E6ECF5"><th style="width:44%;text-align:left">Trello card</th><th style="width:16%;text-align:left">Commit</th><th style="width:40%;text-align:left">What it added</th></tr>
+<tr><td>Sprint 1 module interfaces (PR #7)</td><td>a388d55</td><td>agreed signatures as stubs, 5 contract tests</td></tr>
+<tr><td>[FR-14 · AIR-1] Package Model 1 as a module</td><td>16c9e1a</td><td>classify(), 17 tests</td></tr>
+<tr><td>[FR-1 · FR-2 · NFR-3] Capture and validate interest</td><td>ef28ee1</td><td>validate_interest() for FR-1, 7 tests</td></tr>
+<tr><td>[AIR-4 · NFR-1] Unit + integration tests and CI</td><td>d0f23e7</td><td>pytest in the environment, versions pinned</td></tr>
+</table>
+<p style="font-size:28px;line-height:1.4;color:#4A5263">Each commit title starts with its card’s requirement IDs, so the board and the git history line up. Interfaces were agreed first, so cards could be built in parallel.</p>
+<p style="position:absolute;left:128px;bottom:64px;width:1200px;font-size:24px;color:#6A7080">Group 7 · Task 5 · Testing</p>
+<p style="position:absolute;right:128px;bottom:64px;width:200px;font-size:24px;color:#6A7080;text-align:right">10</p>
+<aside>(0:45) This slide answers the implementation part of the rubric: the work follows the cards on the board. Workflow: the team first agreed the module interfaces and committed them as stubs, so every Sprint 1 card could be built at the same time without conflicts. Each card then fills its stub, and its commit title starts with the card's requirement IDs, for example FR-14 and AIR-1, so anyone can match a commit to a card. Update this table before the demo with every card the group finishes before 6 November.</aside>
+</section>
+
+<section id="next" style="background:#18213A;color:#F5F4EF;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#F0A36B;letter-spacing:2px">NEXT ON THE BOARD</p>
+<h2 style="font-size:64px;font-weight:600;line-height:1.15;color:#F5F4EF">What we add to To Do</h2>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;gap:32px;align-items:baseline;background:#2A3554;border-radius:16px;padding:24px 36px"><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:26px;color:#F0A36B;width:300px">AIR-4 · NFR-1</p><p style="flex:1;font-size:30px;line-height:1.35">GitHub Actions: run all tests on every push</p></div>
+<div style="display:flex;gap:32px;align-items:baseline;background:#2A3554;border-radius:16px;padding:24px 36px"><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:26px;color:#F0A36B;width:300px">FR-13 · AIR-3</p><p style="flex:1;font-size:30px;line-height:1.35">Choose each threshold on dev data, using the 0.31 finding</p></div>
+<div style="display:flex;gap:32px;align-items:baseline;background:#2A3554;border-radius:16px;padding:24px 36px"><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:26px;color:#F0A36B;width:300px">FR-15 · AIR-2</p><p style="flex:1;font-size:30px;line-height:1.35">Model 2 (ESCO skill matcher) as a module, with its tests</p></div>
+<div style="display:flex;gap:32px;align-items:baseline;background:#2A3554;border-radius:16px;padding:24px 36px"><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:26px;color:#F0A36B;width:300px">FR-2</p><p style="flex:1;font-size:30px;line-height:1.35">Validate the study context: hours 1–40, weeks 1–52</p></div>
+<div style="display:flex;gap:32px;align-items:baseline;background:#2A3554;border-radius:16px;padding:24px 36px"><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:26px;color:#F0A36B;width:300px">FR-14</p><p style="flex:1;font-size:30px;line-height:1.35">Check Model 1 on non-Coursera courses, where accuracy is unknown</p></div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1200px;font-size:24px;color:#8A93AA">Group 7 · Task 5 · Testing</p>
+<p style="position:absolute;right:128px;bottom:64px;width:200px;font-size:24px;color:#8A93AA;text-align:right">11</p>
+<aside>(0:30) These are the new To Do cards that testing produced, which the assignment also asks for. CI makes the tests run automatically on every push, not only when someone remembers. The threshold card should use the confidence finding instead of guessing 0.5. Model 2 and FR-2 are the next modules, and each brings its own unit tests: FR-2 has clear boundaries in the SRS, hours 1 to 40 and weeks 1 to 52. The last card is an open question we are honest about: Model 1 was trained and scored on Coursera courses only, because they are the only labelled ones, but it will classify courses from FutureLearn, Udacity and Simplilearn too. Close with: questions?</aside>
+</section>
+
+<section id="mutation" data-backup style="background:#F5F4EF;color:#18213A;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#2C64A8;letter-spacing:2px">TESTING THE TESTS</p>
+<h2 style="font-size:64px;font-weight:600;line-height:1.15">Do the tests fail when they should?</h2>
+</div>
+<div style="display:flex;gap:48px">
+<div style="flex:1;display:flex;flex-direction:column;gap:20px">
+<p style="font-size:28px;color:#4A5263">We broke course_text() on purpose:</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:28px;background:#FCFBF8;border:1px solid #DDDAD0;border-radius:12px;padding:24px 28px">f"{title}<b>.</b> {intro}"</p>
+<p style="font-size:28px;color:#4A5263">became</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:28px;background:#FCFBF8;border:2px solid #B4531C;border-radius:12px;padding:24px 28px">f"{title} {intro}"</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:24px">
+<div style="display:flex;align-items:baseline;gap:24px;background:#FCFBF8;border:1px solid #DDDAD0;border-left:8px solid #2C64A8;border-radius:16px;padding:28px 36px"><p style="font-size:96px;font-weight:600;color:#2C64A8;line-height:1">8</p><p style="font-size:30px;line-height:1.3">unit tests failed</p></div>
+<div style="display:flex;align-items:baseline;gap:24px;background:#FCFBF8;border:1px solid #DDDAD0;border-left:8px solid #B4531C;border-radius:16px;padding:28px 36px"><p style="font-size:96px;font-weight:600;color:#B4531C;line-height:1">0</p><p style="font-size:30px;line-height:1.3">integration tests failed</p></div>
+</div>
+</div>
+<p style="font-size:30px;line-height:1.4;background:#18213A;color:#F5F4EF;padding:28px 40px;border-radius:16px">Both are right. The model ignores punctuation, so predictions did not change. <b>Unit tests guard the code’s contract; integration tests guard what the user sees.</b></p>
+<p style="position:absolute;left:128px;bottom:64px;width:1200px;font-size:24px;color:#6A7080">Group 7 · Task 5 · Testing</p>
+<p style="position:absolute;right:128px;bottom:64px;width:200px;font-size:24px;color:#6A7080;text-align:right">Backup</p>
+<aside>Backup slide for questions. A test that can never fail proves nothing, so we checked ours. We removed the full stop that joins title and intro. 8 unit tests failed: the text no longer matches training, and the empty-input check, which looks for a lone full stop, stopped working. No integration test failed, and that is correct: TF-IDF drops punctuation when it splits text into words, so the model saw the same words and gave the same answers. This is why we need both levels. After the check we restored the file and all 35 pass again.</aside>
+</section>
+
+<section id="findings" data-backup style="background:#F5F4EF;color:#18213A;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:56px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#2C64A8;letter-spacing:2px">WHAT TESTING REVEALED</p>
+<h2 style="font-size:64px;font-weight:600;line-height:1.15">Three problems found before anyone used the module</h2>
+</div>
+<div style="display:flex;gap:32px">
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;background:#FCFBF8;border:1px solid #DDDAD0;border-radius:16px;padding:40px"><p style="font-size:64px;font-weight:600;color:#B4531C;line-height:1">5 of 386</p><h3 style="font-size:34px;font-weight:600">A crash on real data</h3><p style="font-size:28px;line-height:1.4;color:#4A5263">Dev courses with no intro arrive as NaN, and classify() crashed on them. Fixed, now unit-tested.</p></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;background:#FCFBF8;border:1px solid #DDDAD0;border-radius:16px;padding:40px"><p style="font-size:64px;font-weight:600;color:#B4531C;line-height:1">1.7.2 / 1.9.1</p><h3 style="font-size:34px;font-weight:600">A version mismatch</h3><p style="font-size:28px;line-height:1.4;color:#4A5263">The model was saved with scikit-learn 1.7.2; our environment installed 1.9.1. Pinned to 1.7.2: no warnings.</p></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;background:#FCFBF8;border:1px solid #DDDAD0;border-radius:16px;padding:40px"><p style="font-size:64px;font-weight:600;color:#B4531C;line-height:1">0.31</p><h3 style="font-size:34px;font-weight:600">Low confidence</h3><p style="font-size:28px;line-height:1.4;color:#4A5263">The median confidence on dev. A 0.5 threshold would hide 86% of courses; 0.2 keeps 85% at 0.865 accuracy.</p></div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1200px;font-size:24px;color:#6A7080">Group 7 · Task 5 · Testing</p>
+<p style="position:absolute;right:128px;bottom:64px;width:200px;font-size:24px;color:#6A7080;text-align:right">Backup</p>
+<aside>Backup slide for questions. One: pandas reads an empty cell as NaN, a number, not as an empty string; 5 dev courses have no intro and the first version crashed on them. Two: the saved model was pickled with scikit-learn 1.7.2 and the unpinned environment installed 1.9.1. Results were identical, we checked, but scikit-learn does not promise that, so we pinned the version. Three: with 11 categories the model spreads its probability, so even correct answers have low confidence, for example 0.29 for "Learn Spanish". Courses above 0.3 are right 90 percent of the time. This is direct input for the FR-13 threshold card.</aside>
+</section>
+
+<section id="test-data" data-backup style="background:#F5F4EF;color:#18213A;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#2C64A8;letter-spacing:2px">TEST DATA</p>
+<h2 style="font-size:64px;font-weight:600;line-height:1.15">Where the test data comes from</h2>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:32px">
+<div style="display:flex;flex-direction:column;gap:16px;background:#FCFBF8;border:1px solid #DDDAD0;border-left:8px solid #2C64A8;border-radius:16px;padding:36px 40px"><p style="font-size:24px;font-weight:600;color:#2C64A8">UNIT</p><h3 style="font-size:36px;font-weight:600">Hand-made inputs</h3><p style="font-size:28px;line-height:1.4;color:#4A5263">Taken from the SRS rules: 0, 500 and 501 characters, only spaces, None, and NaN as pandas reads an empty cell.</p></div>
+<div style="display:flex;flex-direction:column;gap:16px;background:#FCFBF8;border:1px solid #DDDAD0;border-left:8px solid #2C64A8;border-radius:16px;padding:36px 40px"><p style="font-size:24px;font-weight:600;color:#2C64A8">UNIT</p><h3 style="font-size:36px;font-weight:600">A fake model</h3><p style="font-size:28px;line-height:1.4;color:#4A5263">3 classes and fixed probabilities 0.2 / 0.7 / 0.1, so the right answer is known before the test runs.</p></div>
+<div style="display:flex;flex-direction:column;gap:16px;background:#FCFBF8;border:1px solid #DDDAD0;border-left:8px solid #B4531C;border-radius:16px;padding:36px 40px"><p style="font-size:24px;font-weight:600;color:#B4531C">INTEGRATION</p><h3 style="font-size:36px;font-weight:600">The frozen split</h3><p style="font-size:28px;line-height:1.4;color:#4A5263">2,577 labelled Coursera courses, split 1,805 / 386 / 386 with seed 42 and fingerprinted with sha256.</p></div>
+<div style="display:flex;flex-direction:column;gap:16px;background:#FCFBF8;border:1px solid #DDDAD0;border-left:8px solid #B4531C;border-radius:16px;padding:36px 40px"><p style="font-size:24px;font-weight:600;color:#B4531C">INTEGRATION</p><h3 style="font-size:36px;font-weight:600">The recorded results</h3><p style="font-size:28px;line-height:1.4;color:#4A5263">model1_results.json, written by the training notebook: the numbers our module must reproduce exactly.</p></div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1200px;font-size:24px;color:#6A7080">Group 7 · Task 5 · Testing</p>
+<p style="position:absolute;right:128px;bottom:64px;width:200px;font-size:24px;color:#6A7080;text-align:right">Backup</p>
+<aside>Backup slide for questions. Unit test data is small and made by hand, so every expected output can be worked out on paper. The boundary values come from the SRS, and NaN is in there because that is how pandas represents an empty CSV cell; real data has 5 dev courses without an intro. Integration test data is the real data: the same frozen split everyone in the group trains and evaluates on, and the results file the notebook wrote. We never use the test split to tune anything; it is only scored.</aside>
+</section>
+
+</div></div>
+
+<div id="notes"></div>
+<div id="bar">
+  <button id="prev" aria-label="Previous slide">‹ Prev</button>
+  <button id="next" aria-label="Next slide">Next ›</button>
+  <span id="count"></span>
+  <span class="spacer"></span>
+  <span class="hint">← → to move · N notes · F full screen</span>
+  <button id="toggle-notes">Notes</button>
+  <button id="full">Full screen</button>
+</div>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('#stage > section'));
+  const mainCount = slides.filter(s => !s.hasAttribute('data-backup')).length;
+  const stage = document.getElementById('stage');
+  const viewport = document.getElementById('viewport');
+  const notes = document.getElementById('notes');
+  const count = document.getElementById('count');
+  let current = 0;
+
+  function fit() {
+    const w = viewport.clientWidth, h = viewport.clientHeight;
+    const scale = Math.min(w / 1920, h / 1080);
+    stage.style.transform = `scale(${scale})`;
+    stage.style.left = `${(w - 1920 * scale) / 2}px`;
+    stage.style.top = `${(h - 1080 * scale) / 2}px`;
+  }
+
+  function show(i) {
+    current = Math.max(0, Math.min(slides.length - 1, i));
+    slides.forEach((s, k) => s.classList.toggle('active', k === current));
+    const s = slides[current];
+    count.textContent = s.hasAttribute('data-backup')
+      ? `Backup ${current - mainCount + 1} of ${slides.length - mainCount}`
+      : `Slide ${current + 1} of ${mainCount}`;
+    const aside = s.querySelector('aside');
+    notes.textContent = aside ? aside.textContent : '';
+    history.replaceState(null, '', `#${current + 1}`);
+  }
+
+  function toggleNotes() { document.body.classList.toggle('notes'); fit(); }
+  function toggleFull() {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else document.documentElement.requestFullscreen().catch(() => {});
+  }
+
+  document.getElementById('prev').onclick = () => show(current - 1);
+  document.getElementById('next').onclick = () => show(current + 1);
+  document.getElementById('toggle-notes').onclick = toggleNotes;
+  document.getElementById('full').onclick = toggleFull;
+  document.addEventListener('keydown', e => {
+    if (['ArrowRight', 'PageDown', ' '].includes(e.key)) { e.preventDefault(); show(current + 1); }
+    else if (['ArrowLeft', 'PageUp'].includes(e.key)) { e.preventDefault(); show(current - 1); }
+    else if (e.key === 'Home') show(0);
+    else if (e.key === 'End') show(mainCount - 1);
+    else if (e.key.toLowerCase() === 'n') toggleNotes();
+    else if (e.key.toLowerCase() === 'f') toggleFull();
+  });
+  window.addEventListener('resize', fit);
+
+  const start = parseInt(location.hash.slice(1), 10);
+  show(Number.isFinite(start) ? start - 1 : 0);
+  fit();
+</script>
+</body>
+</html>
