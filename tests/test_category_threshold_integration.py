@@ -5,29 +5,20 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from src.model_category import CATEGORIES, classify
-from src.thresholds import UNCATEGORISED, passes
+from src.model_category import classify
+from src.thresholds import UNCATEGORISED, load_thresholds, passes
 
 
-def test_low_confidence_category_is_withheld():
-    # Deliberately vague course text.
-    title = "General introduction"
-    intro = "Explore a selection of topics and ideas."
+def test_low_confidence_course_is_withheld_and_clear_one_is_kept():
+    thresholds = load_thresholds()  # the real config, category = 0.20
 
-    # Fixed test threshold, not the production configuration.
-    thresholds = {"category": 1.0}
+    # Vague course: Model 1 is unsure (confidence ~0.15) -> shown as "uncategorised".
+    category, confidence = classify("General introduction", "Explore a selection of topics and ideas.")
+    shown = category if passes(confidence, "category", thresholds) else UNCATEGORISED
+    assert shown == UNCATEGORISED
 
-    # Run the real saved Model 1 pipeline.
-    category, confidence = classify(title, intro)
-
-    assert category in CATEGORIES
-    assert 0.0 <= confidence < thresholds["category"]
-
-    # Apply the real threshold function to the model output.
-    displayed_category = (
-        category
-        if passes(confidence, "category", thresholds=thresholds)
-        else UNCATEGORISED
-    )
-
-    assert displayed_category == "uncategorised"
+    # Clear course: confident (~0.69) -> keeps its category.
+    category, confidence = classify("Python for Data Science",
+                                    "Learn Python, pandas and data analysis for data science projects.")
+    assert passes(confidence, "category", thresholds)
+    assert category == "Data Science"
