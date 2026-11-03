@@ -166,8 +166,8 @@ scripts/make_split.py    dedup + stratified 70/15/15 split + sha256 checksums   
 notebooks/model1_classifier.ipynb   majority → TF-IDF/LogReg → TF-IDF/SVD/MLP     [BUILT, RUN]
 notebooks/model2_esco_matcher.ipynb exact → TF-IDF cosine → embeddings + altLabel [BUILT, RUN]
 tests/test_frozen_split.py  guards the split (sha256 + leakage + shape)           [BUILT, 6/6]
-docs/MODEL_PLAN.md       the plan this pipeline follows
-docs/PIPELINE_AUDIT.md   this file
+tasks/task2/MODEL_PLAN.md       the plan this pipeline follows
+tasks/task2/PIPELINE_AUDIT.md   this file
 ```
 
 **Built and committed (branch `model/frozen-split-and-profiling`):**
@@ -190,8 +190,8 @@ data/processed/        generated outputs (frozen split + reports)
 src/data_contract.py   shared paths, columns, label map, seed  [BUILT]
 scripts/profile_data.py  fill rates, dupes, exact-match finding  [BUILT]
 scripts/make_split.py    dedup + stratified 70/15/15 split       [BUILT]
-docs/MODEL_PLAN.md     the plan this pipeline follows
-docs/PIPELINE_AUDIT.md this file
+tasks/task2/MODEL_PLAN.md     the plan this pipeline follows
+tasks/task2/PIPELINE_AUDIT.md this file
 ```
 
 **Already built and committed (branch `model/frozen-split-and-profiling`):**

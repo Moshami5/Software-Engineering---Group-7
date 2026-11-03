@@ -90,8 +90,10 @@ reported number depends on the committed split, and the test fails if it changes
 
 | File | What it is |
 |---|---|
-| `docs/MODEL_PLAN.md` | guide for the modelling work in Task 2 |
-| `docs/PIPELINE_AUDIT.md` | audit of the data and model pipeline |
+| `docs/INTERFACES.md` | the agreed module interfaces (`classify`, `match`, thresholds) |
+| `docs/SPRINT_LOG.md` | what was done per sprint, by whom, and how it is tested |
+| `tasks/task2/MODEL_PLAN.md` | guide for the modelling work in Task 2 |
+| `tasks/task2/PIPELINE_AUDIT.md` | audit of the data and model pipeline |
 | `tasks/task2/TASK2_REPORT.md` | source text of the Task 2 report |
 
 

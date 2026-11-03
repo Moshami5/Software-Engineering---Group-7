@@ -42,5 +42,7 @@ ESCO labels; 2.4% against our 2,154-skill index), and the relations count is cor
 | `Task2_Group7_v1_submitted.docx` / `.pdf` | as submitted on 25 Sep |
 | `Task2_Group7_v2.docx` / `.pdf` | current version — **use this one for the Task 7 final report** |
 | `TASK2_REPORT.md` | source text of v1 |
+| `MODEL_PLAN.md` | the plan the Task 2 modelling followed |
+| `PIPELINE_AUDIT.md` | audit of the Task 2 data and model pipeline |
 
 Model code, results and the frozen split live in `notebooks/`, `src/` and `data/processed/`.
