@@ -1,7 +1,7 @@
 {
-  "_comment": "Score thresholds below which an AI output is withheld (SRS FR-13, AIR-3). null = not chosen yet; values are picked on the dev split only by the card '[FR-13 · AIR-3] Threshold config + withholding'. Reference: in Task 2, 65.9% of real course skills reached 0.35 with TF-IDF scores.",
-  "category": null,
-  "occupation": null,
-  "retrieval": null,
-  "skill": null
+  "_comment": "Score thresholds below which an AI output is withheld (SRS FR-13, AIR-3). category: chosen on the dev split (386 courses) - at 0.20 the predictions withheld are only 47.5% correct while the 85% kept are 86.5% correct; higher values start withholding mostly-correct predictions. occupation 0.55 and skill/retrieval 0.45: measured with the real encoder, see docs/SPRINT_LOG.md (FR-3, FR-4).",
+  "category": 0.2,
+  "occupation": 0.55,
+  "retrieval": 0.45,
+  "skill": 0.45
 }

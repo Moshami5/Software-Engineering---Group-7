@@ -19,12 +19,20 @@ UNMATCHED = "unmatched"          # shown instead of a skill/occupation below thr
 def load_thresholds(path: Path = THRESHOLDS_JSON) -> dict[str, float]:
     """Read config/thresholds.json and return one float per kind in KINDS.
 
-    Should fail loudly if a kind is missing or still null, so an unconfigured
+    Fails loudly if a kind is missing or still null, so an unconfigured
     system never runs.
     """
-    raise NotImplementedError("Threshold card")
+    import json
+
+    config = json.loads(Path(path).read_text(encoding="utf-8"))
+    missing = [kind for kind in KINDS if config.get(kind) is None]
+    if missing:
+        raise ValueError(f"thresholds not set in {path}: {', '.join(missing)}")
+    return {kind: float(config[kind]) for kind in KINDS}
 
 
 def passes(score: float, kind: str, thresholds: dict[str, float] | None = None) -> bool:
     """True when ``score`` reaches the threshold for ``kind`` (score >= threshold)."""
-    raise NotImplementedError("Threshold card")
+    if thresholds is None:
+        thresholds = load_thresholds()
+    return score >= thresholds[kind]
