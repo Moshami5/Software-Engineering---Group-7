@@ -19,7 +19,7 @@
 | Integration tests | 2 | all well defined and at component level, not unit |
 | Implementation progress | 2 | implementation clearly follows the board's tasks and grows at a steady pace |
 
-## Test plan and status (2 Nov)
+## Test plan and status (3 Nov)
 
 The same rows as Table 1 in the report. Change a row to "pass" in the pull request that
 merges the test.
@@ -28,10 +28,10 @@ merges the test.
 |---|---|---|---|---|---|
 | U1 | Unit | interest validation (FR-1) | Musaed | pass | `tests/test_interest.py` |
 | U2 | Unit | study context, "not given" (FR-2, NFR-3) | Melat | pass | `tests/test_study_context.py` |
-| U3 | Unit | thresholds (FR-13, AIR-3) | Bilgin | pending (due 3 Nov) | |
+| U3 | Unit | thresholds (FR-13, AIR-3) | Bilgin | pass | `tests/test_thresholds.py` |
 | U4 | Unit | Model 1 classify (FR-14, AIR-1) | Musaed | pass | `tests/test_model_category.py` |
 | U5 | Unit | Model 2 match (FR-15, AIR-2) | Mohamed | pass | `tests/test_model_skills.py` |
-| I1 | Integration | Model 1 + thresholds | Bilgin | pending (due 4 Nov) | |
+| I1 | Integration | Model 1 + thresholds | Bilgin | pass | `tests/test_category_threshold_integration.py` |
 | I2 | Integration | Model 2 + thresholds | Alexia | pending (due 4 Nov) | |
 | I3 | Integration | batch catalogue preparation, 10 courses that list skills | Raluca | pending (due 4 Nov) | |
 
@@ -39,7 +39,7 @@ Extra integration tests already in main: `tests/test_model_category_integration.
 (real Model 1) and `tests/test_model_skills_integration.py` (real Model 2).
 
 **CI:** every push and pull request runs the whole suite in GitHub Actions
-(`.github/workflows/tests.yml`). On 2 Nov main ran 97 tests, all passing, in 33 s.
+(`.github/workflows/tests.yml`). On 3 Nov main ran 101 tests, all passing, in 30 s.
 
 ## Files
 

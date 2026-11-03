@@ -24,7 +24,7 @@ summarises the assignment, the rubric and the lecturer's feedback.
 | 2 — From data to AI | 25 Sep | submitted; revised to v2 after lecturer feedback (1 Oct) | [`tasks/task2/`](tasks/task2/) |
 | 3 — Analysis (SRS) | 9 Oct | submitted; revised to v2 after lecturer feedback (20 Oct) | [`tasks/task3/`](tasks/task3/) |
 | 4 — Project management and implementation | 23 Oct | submitted late (26 Oct) | [`tasks/task4/`](tasks/task4/) |
-| 5 — Implementation and testing | 6 Nov | in progress: 4 of 8 planned tests pass, CI running | [`tasks/task5/`](tasks/task5/) |
+| 5 — Implementation and testing | 6 Nov | in progress: 6 of 8 planned tests pass, CI running | [`tasks/task5/`](tasks/task5/) |
 | 6 — Scaling up | 13 Nov | not started | [`tasks/task6/`](tasks/task6/) |
 | 7 — Wrap up | 20 Nov | not started | [`tasks/task7/`](tasks/task7/) |
 
