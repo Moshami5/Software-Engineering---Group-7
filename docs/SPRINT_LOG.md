@@ -88,3 +88,95 @@ open. Add your own entry in the same pull request as the work.
 - **Observed:** some predictions have low confidence, e.g. "Get Creative with People to
   Solve Problems" → Computer Science at 0.16. These are the cases the category threshold
   should turn into "uncategorised" (useful example for I1).
+
+---
+
+## Sprint 2 — 2 – 8 Nov 2026 (Task 5)
+
+### FR-3: required skills from the stated interest — Mohamed, 3 Nov · branch `feature/fr3-required-skills` · Trello "[FR-3] Match interest to ESCO occupation -> required skills"
+
+- **What:** `src/occupations.py`. `derive_required_skills(interest)` matches the interest
+  to the 319 ESCO occupations in `data/occupations_clean.csv` and returns the best ones
+  (at most 3) with the union of their essential skills from `data/relations_clean.csv`.
+  If no occupation clears the threshold it returns "no occupation matched", so course
+  retrieval (FR-4) falls back to the interest text. Occupations are indexed with the
+  Model 2 functions in `src/model_skills.py` (same encoder, same document format).
+- **Threshold:** default 0.55, a parameter until the team's threshold config has an
+  "occupation" value. Measured with the real encoder: clear occupations score 0.53–0.72
+  (software developer 0.72, lawyer 0.61, data scientist 0.59), vague interests 0.40–0.46,
+  unrelated text ≤ 0.33. "electrician" is not among the 319 professional occupations but
+  scores 0.51 for "data scientist", so 0.5 would accept a wrong match; 0.55 does not.
+- **Limit:** only professional occupations (ISCO major group 2) are in the cleaned data,
+  so trades such as electrician never match an occupation.
+- **Tests:** `tests/test_occupations.py`, 9 unit tests with a fake encoder and fake
+  occupations (threshold, skills without repeats, "no occupation matched", empty input);
+  `tests/test_occupations_integration.py`, 3 tests with the real encoder ("software
+  developer" → its skills; "electrician" and "I like cooking and baking" → no occupation).
+  Whole suite with the real encoder: 109 passed.
+
+### FR-4: course retrieval — Mohamed, 3 Nov · branch `feature/fr4-course-retrieval` (builds on FR-3) · Trello "[FR-4] Course retrieval"
+
+- **What:** `src/retrieval.py`. A course is a candidate when one of its own skills links
+  to a required ESCO skill (links from `data/processed/skill_matches.csv`, the batch
+  preparation output). Candidates are ranked by how many required skills they cover, can
+  be narrowed by category, and at most 50 are returned, each with title, category and the
+  required skills it covers. No candidates → "no matching courses".
+  Required skills come from FR-3; when no occupation matched, from the ESCO skills closest
+  to the interest text (Model 2).
+- **Threshold:** skill links need a score ≥ 0.45 (parameter until the threshold config has
+  a "skill" value). Measured: "marketing and branding" → marketing skills at 0.52–0.59;
+  "electrician" only reaches noise at 0.37–0.39 and "I like cooking and baking" 0.36, so
+  both now return "no matching courses" instead of unrelated courses.
+- **Real results (3 Nov):** "software developer" → 50 courses led by DevOps, C programming
+  and Android developer certificates; "lawyer" → 50 led by European Business Law;
+  "marketing and branding" (no occupation, interest-text route) → 50 marketing and brand
+  courses. Retrieval takes 4–21 ms once the data is loaded (catalogue 0.1 s).
+- **Limit:** only courses that list skills can be retrieved (2,047 of 5,275 have ESCO links).
+- **Tests:** `tests/test_retrieval.py`, 8 unit tests with fake data; 
+  `tests/test_retrieval_integration.py`, 3 tests with real data and encoder (FR-3 + FR-4
+  together). Whole suite with the real encoder: 120 passed.
+
+### FR-5: feasibility filter — Mohamed, 3 Nov · branch `feature/fr5-feasibility` (builds on FR-4) · Trello "[FR-5 · NFR-3] Feasibility filter"
+
+- **What:** `src/feasibility.py`, rule-based. `assess(candidates, context, facts)` removes
+  courses already completed (title, case-insensitive), taught in another language
+  ("Portuguese (Brazilian)" counts as Portuguese), or needing more hours per week than the
+  student has — each with its reason. A check whose field the student left empty is
+  skipped (FR-2); a course with missing language or hours is kept and labelled
+  "not listed" (NFR-3). Uses Melat's `src/study_context.py` (`is_given`, `label_missing`)
+  unchanged.
+- **Real example (3 Nov):** "software developer", English, 4 h/week, Meta Android
+  certificate completed → 50 candidates, 45 kept, 5 removed (1 "already completed",
+  4 "needs 6/7/10 hours per week, you have 4").
+- **Data limit:** weekly hours are listed for only 40% of courses (42 of the 45 kept here
+  are "not listed"), so the hours check rarely applies; language is listed for 53%.
+- **Tests:** `tests/test_feasibility.py`, 7 unit tests (each reason, skipped checks,
+  "not listed", language variants, order kept); `tests/test_feasibility_integration.py`,
+  1 test with real courses and a context validated by `study_context.py`.
+  Whole suite with the real encoder: 128 passed.
+
+### FR-6 + FR-7: study paths and ranking — Mohamed, 3 Nov · branch `feature/fr6-fr7-paths` (builds on FR-5) · Trello "[FR-6] Path composition", "[FR-7] Ranking + shortlist of 3-5 paths"
+
+- **What:** `src/paths.py`. `build_paths()` starts a path from each feasible course and keeps
+  adding the course that covers the most still-missing *required* skills while the total
+  fits the weeks available (FR-6); courses without a duration are left out and counted.
+  Paths are scored by the share of required skills covered, ordered by score with ties to
+  the shorter path, and 3–5 are returned, or fewer with "only N paths fit your
+  constraints" (FR-7).
+- **Durations → weeks** (agreed 3 Nov): weeks as listed, months × 4.3, days ÷ 7; hours and
+  minutes are total study time (duration basis "study_time" in the data) ÷ the student's
+  hours per week. Two defaults chosen while building: 5 hours/week when the student gave
+  none (so hour-based courses, 44% of the catalogue, still count), and at most 5 courses
+  per path when no weeks were given.
+- **Found and fixed while testing:** (1) a course was added for skills that were not
+  required — now only required skills count; (2) the catalogue lists some courses twice
+  under different keys, which produced two identical-looking paths — paths with the same
+  titles now count once. Both have unit tests.
+- **Real example (3 Nov):** "marketing and branding", English, 4 h/week, 12 weeks → 5 paths
+  covering all marketing skills in 3–6.5 weeks. "software developer", 6 h/week, 20 weeks →
+  5 paths covering 26–28% of its 46 required skills in ~19 weeks. Whole chain FR-3→FR-7:
+  47 ms once loaded.
+- **Tests:** `tests/test_paths.py`, 16 unit tests (unit conversion, budget, required-only
+  skills, ties, left-out count, messages, at most 5, duplicates);
+  `tests/test_advisor_chain_integration.py`, 1 test running FR-3→FR-7 on real data.
+  Whole suite with the real encoder: 145 passed.
