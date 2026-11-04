@@ -32,7 +32,7 @@ merges the test.
 | U4 | Unit | Model 1 classify (FR-14, AIR-1) | Musaed | pass | `tests/test_model_category.py` |
 | U5 | Unit | Model 2 match (FR-15, AIR-2) | Mohamed | pass | `tests/test_model_skills.py` |
 | I1 | Integration | Model 1 + thresholds | Bilgin | pass | `tests/test_category_threshold_integration.py` |
-| I2 | Integration | Model 2 + thresholds | Alexia | pending (due 4 Nov) | |
+| I2 | Integration | Model 2 + thresholds | Alexia | pass | | 'tests/test_i2_skill_matching.py'
 | I3 | Integration | batch catalogue preparation, 10 courses that list skills | Raluca | pending (due 4 Nov) | |
 
 Extra integration tests already in main: `tests/test_model_category_integration.py`
