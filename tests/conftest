@@ -1,0 +1,8 @@
+import pytest
+
+@pytest.fixture(scope="session")
+def encoder():
+    """The real production encoder (all-MiniLM-L6-v2), loaded once per test run."""
+    from sentence_transformers import SentenceTransformer
+    from src.model_skills import ENCODER_NAME
+    return SentenceTransformer(ENCODER_NAME)
