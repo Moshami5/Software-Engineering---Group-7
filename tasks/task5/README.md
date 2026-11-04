@@ -33,7 +33,7 @@ merges the test.
 | U5 | Unit | Model 2 match (FR-15, AIR-2) | Mohamed | pass | `tests/test_model_skills.py` |
 | I1 | Integration | Model 1 + thresholds | Bilgin | pass | `tests/test_category_threshold_integration.py` |
 | I2 | Integration | Model 2 + thresholds | Alexia | pending (due 4 Nov) | |
-| I3 | Integration | batch catalogue preparation, 10 courses that list skills | Raluca | pending (due 4 Nov) | |
+| I3 | Integration | batch catalogue preparation, 10 courses that list skills | Raluca | pass |`tests/test_integration_i3_batch_catalogue.py` |
 
 Extra integration tests already in main: `tests/test_model_category_integration.py`
 (real Model 1) and `tests/test_model_skills_integration.py` (real Model 2).
