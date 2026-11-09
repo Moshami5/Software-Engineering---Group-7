@@ -45,6 +45,7 @@ Extra integration tests already in main: `tests/test_model_category_integration.
 
 | File | What it is |
 |---|---|
-| `Task5_presentation.html` | slides for the in-class test demo (draft, open in a browser; test counts still to update) |
+| `Task5_presentation.html` | slides for the in-class test demo (open in a browser; N shows speaker notes) |
+| `Task5_Group7_Report.pdf` | the submitted one-page report |
 
-The one-page report goes here once submitted. Tests live in `tests/`.
+Tests live in `tests/`.
