@@ -1,6 +1,6 @@
 # Task 5 — Implementation and testing
 
-**Due:** Fri 6 Nov 2026, 18:00 · **Points:** 6 · **Status:** in progress (Sprint 2, 2 – 8 Nov)
+**Due:** Fri 6 Nov 2026, 18:00 · **Points:** 6 · **Status:** report submitted 6 Nov; tests demonstrated in class 9 Nov
 
 ## What was asked
 
@@ -45,7 +45,7 @@ Extra integration tests already in main: `tests/test_model_category_integration.
 
 | File | What it is |
 |---|---|
-| `Task5_presentation.html` | slides for the in-class test demo (open in a browser; N shows speaker notes) |
+| `Task5_presentation.pptx` | slides used for the in-class test demo on 9 Nov (speaker notes included) |
 | `Task5_Group7_Report.pdf` | the submitted one-page report |
 
 Tests live in `tests/`.
