@@ -57,7 +57,7 @@ class Server:
 # Ports and module names as agreed in tasks/task6/README.md.
 ORCHESTRATOR = Server("orchestrator", "src.servers.orchestrator:app", 8001, "/health")
 AI_SERVER = Server("ai_server", "src.servers.ai_server:app", 8002, "/health")
-INTERFACE = Server("interface", "src.servers.interface_server:app", 8000, "/docs")
+INTERFACE = Server("interface", "src.interface_server:app", 8000, "/docs")
 
 # Started in this order: the queue first, so the AI server and the interface find it.
 ALL_SERVERS = (ORCHESTRATOR, AI_SERVER, INTERFACE)

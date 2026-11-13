@@ -23,4 +23,4 @@ dependencies:
       - nbconvert==7.16.6              # optional: headless notebook execution
       - fastapi==0.162.5               # Task 6 servers
       - uvicorn==0.54.0
-       - httpx==0.28.1
+      - httpx==0.28.1
