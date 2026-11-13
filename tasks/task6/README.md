@@ -54,7 +54,7 @@ what `advise()` in `src/advisor.py` takes and returns, passed through unchanged.
 
 | Endpoint | Body | Response |
 |---|---|---|
-| `POST /advice` | the student request (below) | `202 {"id", "status": "queued"}`; bad input → `422 {"error"}`, no job; orchestrator down → `503 {"error"}` |
+| `POST /advice` | the student request (below) | `202 {"id", "status": "waiting"}`; bad input → `422 {"error"}`, no job; orchestrator down → `503 {"error"}` |
 | `GET /advice/{id}` | — | `{"id", "status"}` from the orchestrator, plus `"result"` when done or `"error"` when failed; `404` if unknown |
 
 Every checked request is also stored in the interface's own SQLite database
