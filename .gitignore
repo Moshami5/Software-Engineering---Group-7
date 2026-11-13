@@ -56,3 +56,6 @@ data/processed/*
 .idea/
 .DS_Store
 Thumbs.db
+
+# Task 6 runtime state (orchestrator SQLite queue)
+runtime/
