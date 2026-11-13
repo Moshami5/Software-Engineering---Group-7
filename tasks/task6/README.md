@@ -1,7 +1,17 @@
 # Task 6 — Scaling (up) the system
 
-**Due:** Fri 13 Nov 2026, 18:00 · **Points:** 3 · **Status:** in progress — AI server
-(PR #31) and orchestrator done; interface server, start script and report to do.
+**Due:** Fri 13 Nov 2026, 18:00 · **Points:** 3 · **Status:** done — all three servers
+and the start script are on `main` (PRs #29, #31, #32, #33–#37); 221 tests pass and the
+end-to-end check passes. Report: [`Task6_Group7_Report.pdf`](Task6_Group7_Report.pdf).
+
+| Card | Owner(s) | PR |
+|---|---|---|
+| `advise()` + AI server (port 8002) | Mohamed | #29, #31 |
+| Orchestrator (port 8001) + agreed API | Musaed (API with Melat, Mohamed) | #32 |
+| Interface server (port 8000) | Melat | #36 |
+| CI dependencies | Alexia, Raluca | #33, #34 |
+| Start script + end-to-end check | Bilgin | #35 |
+| Fixes from the end-to-end run, one-page report | Musaed | #37 |
 
 ## What was asked
 
@@ -40,12 +50,15 @@ orchestrator and each job still goes to exactly one of them.
 Card "Agree the API" (owners: Musaed, Melat, Mohamed). Request and result JSON are exactly
 what `advise()` in `src/advisor.py` takes and returns, passed through unchanged.
 
-### Interface server — port 8000 (Melat)
+### Interface server — port 8000 (Melat) · `src/interface_server.py`
 
 | Endpoint | Body | Response |
 |---|---|---|
-| `POST /advice` | the student request (below) | `202 {"id", "status": "waiting"}`; bad input → `422 {"error"}`, no job |
-| `GET /advice/{id}` | — | `{"id", "status", "result", "error"}` from the orchestrator; `404` if unknown |
+| `POST /advice` | the student request (below) | `202 {"id", "status": "waiting"}`; bad input → `422 {"error"}`, no job; orchestrator down → `503 {"error"}` |
+| `GET /advice/{id}` | — | `{"id", "status"}` from the orchestrator, plus `"result"` when done or `"error"` when failed; `404` if unknown |
+
+Every checked request is also stored in the interface's own SQLite database
+(`data/processed/interface_requests.sqlite`, not committed).
 
 ### Orchestrator — port 8001 (Musaed) · `src/servers/orchestrator.py`
 
@@ -80,24 +93,47 @@ Only `interest` is required. The result is `{"ok": true, "context", "occupations
 
 ## Running it
 
-From the repo root, in the CSAI environment (`pip install fastapi uvicorn httpx` once):
+From the repo root, in the CSAI environment (fastapi, uvicorn and httpx are in
+`environment.yml`). Ports 8000–8002 must be free.
+
+**All three servers with one command** (Ctrl+C stops them):
+
+```bash
+python scripts/run_servers.py
+```
+
+**End-to-end check** (starts the servers, sends requests like a student, stops them; exit
+code 0 when it passes):
+
+```bash
+python scripts/run_servers.py --check
+#   ok  invalid input rejected by the interface (422), no job created
+#   ok  request accepted: http://127.0.0.1:8000/advice/<id>
+#   ok  5 study paths returned, computed by the AI server
+# PASSED
+```
+
+**Or each server by hand**, in three terminals:
 
 ```bash
 python -m uvicorn src.servers.orchestrator:app --port 8001
-python -m uvicorn src.servers.ai_server:app   --port 8002   # loads the models (~30 s)
+python -m uvicorn src.servers.ai_server:app   --port 8002   # loads the models first
+python -m uvicorn src.interface_server:app    --port 8000
 ```
 
-Check (orchestrator + AI server, without the interface):
+Then, as a student:
 
 ```bash
-curl -X POST localhost:8001/jobs -H "content-type: application/json" \
-     -d '{"request": {"interest": "software developer", "weeks_available": 20}}'
-curl localhost:8001/jobs/<id>          # status "done" with 3-5 paths in "result"
+curl -X POST localhost:8000/advice -H "content-type: application/json" \
+     -d '{"interest": "software developer", "weeks_available": 20}'
+curl localhost:8000/advice/<id>        # status "done" with 3-5 paths in "result"
 ```
 
 Settings: `ORCHESTRATOR_DB` (SQLite file, default `runtime/orchestrator.sqlite3`, not
-committed), `ORCHESTRATOR_URL` and `AI_POLL_SECONDS` for the AI server.
+committed), `ORCHESTRATOR_URL` (interface and AI server) and `AI_POLL_SECONDS` (AI server).
 
 ## Files
 
-The one-page report goes here when written.
+| File | What |
+|---|---|
+| [`Task6_Group7_Report.pdf`](Task6_Group7_Report.pdf) | the one-page preliminary report |
