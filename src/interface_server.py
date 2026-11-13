@@ -53,7 +53,7 @@ UNKNOWN_ID_MESSAGE = "No advice request with this id"
 
 def create_job(request):
     """POST /jobs at the orchestrator; returns the new job id."""
-    response = httpx.post(f"{ORCHESTRATOR_URL}/jobs", json=request, timeout=5)
+    response = httpx.post(f"{ORCHESTRATOR_URL}/jobs", json={"request": request}, timeout=5)
     response.raise_for_status()
     return str(response.json()["id"])
 
