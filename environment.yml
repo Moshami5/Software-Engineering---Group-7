@@ -21,3 +21,6 @@ dependencies:
       - torch==2.12.0
       - sentence-transformers==5.5.1   # Model 2 embeddings (all-MiniLM-L6-v2)
       - nbconvert==7.16.6              # optional: headless notebook execution
+      - fastapi==0.162.5               # Task 6 servers
+      - uvicorn==0.54.0
+       - httpx==0.28.1
