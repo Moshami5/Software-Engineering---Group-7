@@ -7,3 +7,6 @@ numpy==2.3.5
 scikit-learn==1.7.2   # must match the version the saved .joblib models were pickled with
 sentence-transformers==5.5.1
 pytest
+fastapi==0.162.5
+uvicorn==0.54.0
+httpx==0.28.1
