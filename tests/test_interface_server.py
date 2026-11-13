@@ -129,13 +129,13 @@ def test_get_with_orchestrator_down_gives_503(fake, monkeypatch):
 
 
 def test_create_job_calls_only_the_orchestrator(monkeypatch):
-    urls = []
+    calls = []
 
     def fake_post(url, json, timeout):
-        urls.append(url)
+        calls.append((url, json))
         return httpx.Response(201, json={"id": "abc"}, request=httpx.Request("POST", url))
 
     monkeypatch.setattr(server.httpx, "post", fake_post)
 
     assert server.create_job({"interest": "x"}) == "abc"
-    assert urls == ["http://localhost:8001/jobs"]
+    assert calls == [("http://localhost:8001/jobs", {"request": {"interest": "x"}})]
