@@ -4,7 +4,7 @@ No other server runs: the orchestrator calls are replaced by fakes, and requests
 are stored in an in-memory database, so each test checks only this server's code.
 
 Test data: typed by hand. Bad input reuses the FR-1 / FR-2 limits (empty interest,
-41 hours per week); job answers use the agreed statuses queued / running / done / failed.
+41 hours per week); job answers use the agreed statuses waiting / running / done / failed.
 """
 import pytest
 
@@ -51,11 +51,11 @@ def test_valid_request_is_cleaned_stored_and_sent(fake):
                                                     "hours_per_week": "4"})
 
     assert response.status_code == 202
-    assert response.json() == {"id": "1", "status": "queued"}
+    assert response.json() == {"id": "1", "status": "waiting"}
     assert fake["sent"] == [{"interest": "software developer", "language": None,
                              "hours_per_week": 4.0, "weeks_available": None,
                              "completed_courses": []}]
-    assert stored() == [("1", "queued")]
+    assert stored() == [("1", "waiting")]
 
 
 @pytest.mark.parametrize("payload, message", [
@@ -92,7 +92,7 @@ def test_done_job_returns_the_study_paths(fake):
     assert response.json() == {"id": "7", "status": "done", "result": PATHS}
 
 
-@pytest.mark.parametrize("status", ["queued", "running"])
+@pytest.mark.parametrize("status", ["waiting", "running"])
 def test_unfinished_job_returns_status_only(fake, status):
     fake["jobs"]["7"] = {"id": "7", "status": status}
 

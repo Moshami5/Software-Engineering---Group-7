@@ -116,8 +116,8 @@ def post_advice(payload: dict = Body(...)):
         set_job(row, None, "not sent")
         return JSONResponse(status_code=503, content={"error": DOWN_MESSAGE})
 
-    set_job(row, job_id, "queued")
-    return {"id": job_id, "status": "queued"}
+    set_job(row, job_id, "waiting")
+    return {"id": job_id, "status": "waiting"}
 
 
 @app.get("/advice/{job_id}")
