@@ -28,6 +28,16 @@ def open_db(path=DB_PATH):
         " job_id TEXT,"
         " status TEXT NOT NULL)"
     )
+    db.execute(
+        "CREATE TABLE IF NOT EXISTS flags ("
+        " id INTEGER PRIMARY KEY AUTOINCREMENT,"
+        " flagged_at TEXT NOT NULL,"
+        " item_type TEXT NOT NULL,"
+        " item TEXT NOT NULL,"
+        " course TEXT,"
+        " path INTEGER,"
+        " job_id TEXT)"
+    )
     db.commit()
     return db
 
@@ -45,6 +55,52 @@ def store_request(request):
     db.commit()
     return cur.lastrowid
 
+FLAG_TYPES = ("skill", "occupation")
+FLAGGED_MESSAGE = "flagged for review"
+FLAG_TYPE_ERROR = "Type must be 'skill' or 'occupation'"
+FLAG_ITEM_ERROR = "Please name the skill or occupation you think is wrong"
+FLAG_WHERE_ERROR = "Please say which course or path it was shown for"
+
+
+def check_flag(payload):
+    """FR-17: the flagged item and where it was shown. Returns (flag, "") or (None, error)."""
+    item_type = payload.get("type")
+    if item_type not in FLAG_TYPES:
+        return None, FLAG_TYPE_ERROR
+
+    item = payload.get("item")
+    if not isinstance(item, str) or not item.strip():
+        return None, FLAG_ITEM_ERROR
+
+    course = payload.get("course")
+    path = payload.get("path")
+    if not isinstance(course, str) or not course.strip():
+        course = None
+    if not isinstance(path, int) or isinstance(path, bool) or path < 1:
+        path = None
+    if course is None and path is None:
+        return None, FLAG_WHERE_ERROR
+
+    job_id = payload.get("job_id")
+    return {
+        "item_type": item_type,
+        "item": item.strip(),
+        "course": course.strip() if course else None,
+        "path": path,
+        "job_id": str(job_id) if job_id is not None else None,
+    }, ""
+
+
+def store_flag(flag):
+    """Save one flag with a timestamp; returns its id. No personal data (NFR-8)."""
+    now = datetime.now(timezone.utc).isoformat()
+    cur = db.execute(
+        "INSERT INTO flags (flagged_at, item_type, item, course, path, job_id)"
+        " VALUES (?, ?, ?, ?, ?, ?)",
+        (now, flag["item_type"], flag["item"], flag["course"], flag["path"], flag["job_id"]),
+    )
+    db.commit()
+    return cur.lastrowid
 
 ORCHESTRATOR_URL = os.environ.get("ORCHESTRATOR_URL", "http://localhost:8001")
 DOWN_MESSAGE = "The advice service is not available right now, please try again later"
@@ -138,3 +194,13 @@ def get_advice(job_id: str):
     elif status == "failed":
         answer["error"] = job.get("error")
     return answer
+
+
+@app.post("/flags", status_code=201)
+def post_flag(payload: dict = Body(...)):
+    flag, error = check_flag(payload)
+    if flag is None:
+        return JSONResponse(status_code=422, content={"error": error})
+
+    flag_id = store_flag(flag)
+    return {"id": flag_id, "message": FLAGGED_MESSAGE}
