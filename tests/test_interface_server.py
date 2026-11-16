@@ -183,7 +183,7 @@ def test_bad_flag_is_refused_and_not_stored(fake, payload, message):
 def test_flag_stores_no_personal_data(fake):
     fake["client"].post("/flags", json={
         "type": "skill", "item": "Python", "path": 1,
-        "name": "Melat", "email": "student@example.com"})
+        "name": "Student", "email": "student@example.com"})
 
     stored = server.db.execute("SELECT * FROM flags").fetchone()
-    assert "Melat" not in stored and "student@example.com" not in stored
+    assert "Student" not in stored and "student@example.com" not in stored
