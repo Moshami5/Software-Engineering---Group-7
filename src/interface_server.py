@@ -140,12 +140,15 @@ def update_status(job_id, status):
 def health():
     return {"status": "ok"}
 
+REQUEST_FIELDS = ("interest", "language", "hours_per_week", "weeks_available", "completed_courses")
+NOTHING_TO_UPDATE = "Send at least one field to change: " + ", ".join(REQUEST_FIELDS)
 
-@app.post("/advice", status_code=202)
-def post_advice(payload: dict = Body(...)):
+
+def check_request(payload):
+    """FR-1 + FR-2 on a student request. Returns (clean request, "") or (None, error)."""
     interest = validate_interest(payload.get("interest"))
     if not interest.ok:
-        return JSONResponse(status_code=422, content={"error": interest.error})
+        return None, interest.error
 
     context = validate_study_context(
         language=payload.get("language"),
@@ -154,17 +157,27 @@ def post_advice(payload: dict = Body(...)):
         completed_courses=payload.get("completed_courses"),
     )
     if not context.ok:
-        return JSONResponse(status_code=422, content={"error": context.error})
+        return None, context.error
 
     ctx = context.value
-    request = {
+    return {
         "interest": interest.value,
         "language": ctx.language,
         "hours_per_week": ctx.hours_per_week,
         "weeks_available": ctx.weeks_available,
         "completed_courses": list(ctx.completed_courses),
-    }
+    }, ""
 
+
+def stored_request(job_id):
+    """The checked request that was sent for this job, or None if the id is unknown."""
+    row = db.execute("SELECT request_json FROM requests WHERE job_id = ? ORDER BY id DESC LIMIT 1",
+                     (job_id,)).fetchone()
+    return json.loads(row[0]) if row else None
+
+
+def submit(request):
+    """Store a checked request and create its job; returns the answer for the student."""
     row = store_request(request)
     try:
         job_id = create_job(request)
@@ -175,6 +188,38 @@ def post_advice(payload: dict = Body(...)):
     set_job(row, job_id, "waiting")
     return {"id": job_id, "status": "waiting"}
 
+
+@app.post("/advice", status_code=202)
+def post_advice(payload: dict = Body(...)):
+    request, error = check_request(payload)
+    if request is None:
+        return JSONResponse(status_code=422, content={"error": error})
+    return submit(request)
+
+
+@app.post("/advice/{job_id}/update", status_code=202)
+def update_advice(job_id: str, payload: dict = Body(...)):
+    """FR-12: change some inputs; the others are reused from the earlier request."""
+    old = stored_request(job_id)
+    if old is None:
+        return JSONResponse(status_code=404, content={"error": UNKNOWN_ID_MESSAGE})
+
+    changes = {field: payload[field] for field in REQUEST_FIELDS if field in payload}
+    if not changes:
+        return JSONResponse(status_code=422, content={"error": NOTHING_TO_UPDATE})
+
+    request, error = check_request({**old, **changes})
+    if request is None:
+        return JSONResponse(status_code=422, content={"error": error})
+
+    if request == old:
+        return JSONResponse(status_code=200, content={"id": job_id, "status": "unchanged"})
+
+    answer = submit(request)
+    if isinstance(answer, dict):
+        answer["previous_id"] = job_id
+        answer["changed"] = [field for field in REQUEST_FIELDS if request[field] != old[field]]
+    return answer
 
 @app.get("/advice/{job_id}")
 def get_advice(job_id: str):

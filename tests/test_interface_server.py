@@ -187,3 +187,77 @@ def test_flag_stores_no_personal_data(fake):
 
     stored = server.db.execute("SELECT * FROM flags").fetchone()
     assert "Student" not in stored and "student@example.com" not in stored
+
+
+
+def start(fake, **request):
+    """Send a first request and return its job id."""
+    return fake["client"].post("/advice", json=request).json()["id"]
+
+
+def test_update_reuses_the_unchanged_inputs(fake):
+    job = start(fake, interest="data science", language="English",
+                hours_per_week=4, weeks_available=12)
+
+    response = fake["client"].post(f"/advice/{job}/update", json={"hours_per_week": 10})
+
+    assert response.status_code == 202
+    assert response.json() == {"id": "2", "status": "waiting",
+                               "previous_id": "1", "changed": ["hours_per_week"]}
+    assert fake["sent"][1] == {"interest": "data science", "language": "English",
+                               "hours_per_week": 10.0, "weeks_available": 12.0,
+                               "completed_courses": []}
+
+
+def test_update_can_change_the_interest(fake):
+    job = start(fake, interest="data science", weeks_available=12)
+
+    response = fake["client"].post(f"/advice/{job}/update", json={"interest": "  marketing "})
+
+    assert response.json()["changed"] == ["interest"]
+    assert fake["sent"][1]["interest"] == "marketing"
+    assert fake["sent"][1]["weeks_available"] == 12.0
+
+
+def test_update_can_clear_a_field_to_not_given(fake):
+    job = start(fake, interest="data science", hours_per_week=4)
+
+    fake["client"].post(f"/advice/{job}/update", json={"hours_per_week": None})
+
+    assert fake["sent"][1]["hours_per_week"] is None
+
+
+def test_same_values_make_no_new_job(fake):
+    job = start(fake, interest="data science", hours_per_week=4)
+
+    response = fake["client"].post(f"/advice/{job}/update", json={"hours_per_week": "4"})
+
+    assert response.status_code == 200
+    assert response.json() == {"id": "1", "status": "unchanged"}
+    assert len(fake["sent"]) == 1
+
+
+def test_bad_change_is_refused_and_no_job_is_made(fake):
+    job = start(fake, interest="data science")
+
+    response = fake["client"].post(f"/advice/{job}/update", json={"hours_per_week": 41})
+
+    assert response.status_code == 422
+    assert response.json() == {"error": "Hours per week must be a number from 1 to 40"}
+    assert len(fake["sent"]) == 1
+
+
+def test_update_without_known_fields_is_refused(fake):
+    job = start(fake, interest="data science")
+
+    response = fake["client"].post(f"/advice/{job}/update", json={"name": "Alex"})
+
+    assert response.status_code == 422
+    assert response.json() == {"error": server.NOTHING_TO_UPDATE}
+
+
+def test_update_of_unknown_id_is_404(fake):
+    response = fake["client"].post("/advice/99/update", json={"hours_per_week": 10})
+
+    assert response.status_code == 404
+    assert response.json() == {"error": server.UNKNOWN_ID_MESSAGE}
