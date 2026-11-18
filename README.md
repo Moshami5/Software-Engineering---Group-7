@@ -25,7 +25,7 @@ summarises the assignment, the rubric and the lecturer's feedback.
 | 3 — Analysis (SRS) | 9 Oct | submitted; revised to v2 after lecturer feedback (20 Oct) | [`tasks/task3/`](tasks/task3/) |
 | 4 — Project management and implementation | 23 Oct | submitted late (26 Oct) | [`tasks/task4/`](tasks/task4/) |
 | 5 — Implementation and testing | 6 Nov | report submitted 6 Nov; all 8 planned tests pass; demonstrated 9 Nov | [`tasks/task5/`](tasks/task5/) |
-| 6 — Scaling up | 13 Nov | done: 3 servers (interface, orchestrator, AI) on `main`, end-to-end check passes; one-page report in the folder | [`tasks/task6/`](tasks/task6/) |
+| 6 — Scaling up | 13 Nov | done: interface, orchestrator and AI servers on `main`; after the 17 Nov feedback the orchestrator pushes jobs and starts, checks and restarts the AI servers | [`tasks/task6/`](tasks/task6/) |
 | 7 — Wrap up | 20 Nov | not started | [`tasks/task7/`](tasks/task7/) |
 
 ## Repository layout
@@ -51,7 +51,7 @@ data/processed/               everything derived from the source tables
 src/data_contract.py          single source of truth: paths, columns, labels, seed
 src/advisor.py                advise(): the whole FR-1 → FR-7 chain, JSON in and out
 src/interface_server.py       Task 6 interface server (port 8000)
-src/servers/                  Task 6 orchestrator (8001) and AI server (8002)
+src/servers/                  Task 6 orchestrator (8001, with its AI pool) and AI server (8002)
 scripts/                      make_split.py, profile_data.py, run_servers.py (starts all 3 servers)
 notebooks/                    model1_classifier.ipynb, model2_esco_matcher.ipynb
 tests/                        automated tests (pytest)
