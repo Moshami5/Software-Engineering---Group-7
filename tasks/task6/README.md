@@ -2,8 +2,8 @@
 
 **Due:** Fri 13 Nov 2026, 18:00 · **Points:** 3 · **Status:** submitted 13 Nov; after the
 lecturer's feedback (17 Nov) the middle server was turned from a passive job queue into a
-real orchestrator (see below). Report: [`Task6_Group7_Report.pdf`](Task6_Group7_Report.pdf)
-(describes the first version).
+real orchestrator (see below). Report: [`Task6_Group7_Report_v2.pdf`](Task6_Group7_Report_v2.pdf)
+(current); [`Task6_Group7_Report.pdf`](Task6_Group7_Report.pdf) is v1 as submitted.
 
 | Card | Owner(s) | PR |
 |---|---|---|
@@ -183,4 +183,5 @@ Settings (orchestrator): `ORCHESTRATOR_DB` (SQLite file, default
 
 | File | What |
 |---|---|
-| [`Task6_Group7_Report.pdf`](Task6_Group7_Report.pdf) | the one-page preliminary report |
+| [`Task6_Group7_Report_v2.pdf`](Task6_Group7_Report_v2.pdf) | **current**: revised 18 Nov after the lecturer's feedback (real orchestrator) — use this one for the Task 7 final report |
+| [`Task6_Group7_Report.pdf`](Task6_Group7_Report.pdf) | v1, the one-page preliminary report as submitted on 13 Nov |
