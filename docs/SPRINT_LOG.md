@@ -180,3 +180,101 @@ open. Add your own entry in the same pull request as the work.
   skills, ties, left-out count, messages, at most 5, duplicates);
   `tests/test_advisor_chain_integration.py`, 1 test running FR-3→FR-7 on real data.
   Whole suite with the real encoder: 145 passed.
+
+---
+
+## Sprint 3 — 9 – 15 Nov 2026 (Task 6)
+
+Entries for each teammate's card are short facts from their pull request; owners, add
+your decisions and findings to your own entry.
+
+### `advise()` + AI server — Mohamed, 9 Nov · PRs #29, #31 · Trello "[T6 · NFR-4] AI server"
+
+- `src/advisor.py`: the whole FR-1 → FR-7 chain behind one JSON-in, JSON-out call
+  (6 unit tests with fake steps, 1 integration test on real data).
+- `src/servers/ai_server.py`: loads both models and the catalogue once; in this first
+  version a worker loop pulled jobs from the orchestrator (`GET /jobs/next`). Local check
+  9 Nov: models load in ~10 s; "software developer" → 5 paths in 1.4 s.
+
+### Orchestrator (job queue) + agreed API — Musaed, 13 Nov · PR #32 · Trello "[T6] Orchestrator", "[T6] Agree the API"
+
+- **What:** `src/servers/orchestrator.py`, FastAPI on port 8001; jobs in a SQLite table
+  (decided 9 Nov: no Redis, no Docker); `POST /jobs`, `GET /jobs/next`,
+  `POST /jobs/{id}/result`, `GET /jobs/{id}`. The agreed API for all three servers is
+  written in `tasks/task6/README.md`.
+- **Decisions:** taking a job is one `BEGIN IMMEDIATE` transaction, so a job is never given
+  out twice; a result for a job that is not running is refused (409).
+- **Tests:** 15 unit tests, including 8 parallel takers sharing 40 jobs.
+
+### Interface server — Melat, 13 Nov · PRs #36, #38, #40
+
+- `src/interface_server.py`, port 8000: checks FR-1/FR-2, stores requests in its own
+  SQLite database, sends valid ones to the orchestrator, never calls the AI server.
+  #38: status name "waiting" as agreed. #40 (Sprint 4): `POST /flags`, report a wrong
+  match (FR-17), no personal data stored (NFR-8).
+
+### CI dependencies — Alexia, Raluca, 13 Nov · PRs #33, #34
+
+- fastapi, uvicorn and httpx added to `requirements-ci.txt` and `environment.yml`, so CI
+  runs the server tests.
+
+### Start script + end-to-end check — Bilgin, 13 Nov · PR #35
+
+- `scripts/run_servers.py` starts the servers with one command; `--check` sends a bad and
+  a real request like a student would and checks that study paths come back.
+
+### First full run: two faults no unit test could see — Musaed, 13 Nov · PR #37
+
+- **Found:** running all three servers together failed twice, although every server's own
+  tests passed (each faked the others): (1) the interface sent the request without the
+  agreed `{"request": ...}` wrapper, so the orchestrator answered 422 to every job;
+  (2) the start script looked for the interface in `src/servers/`, Melat's file is in `src/`.
+- **Fixed:** (1) by Melat in #36 before merging; (2) and a YAML indentation slip in
+  `environment.yml` in #37. `--check` then PASSED: 5 study paths.
+- **Lesson:** a test that runs the real servers together is needed → next entry.
+
+---
+
+## Sprint 4 — 16 – 22 Nov 2026 (Task 7)
+
+### Integration test across the three servers — Musaed, 18 Nov · PR #41 (merged into #42) · Trello "[T7] Code clean-up" checklist
+
+- **What:** `tests/test_servers_integration.py` runs the real interface, orchestrator and
+  AI server together, in memory (fake advisor, no ports or models, ~1 s), so it runs in CI.
+- **Checked:** with the 13 Nov request-format bug put back, 3 of its tests fail.
+
+### Real orchestrator after the Task 6 feedback — Musaed, 18 Nov · PR #42 · builds on Mohamed's AI server (#31) and Bilgin's start script (#35)
+
+- **Feedback (lecturer, 17 Nov):** the middle server was a job queue, not an orchestrator:
+  both servers called it and it never decided anything; the AI server polled every 0.5 s
+  even with no jobs; nobody restarted a crashed AI server; can two servers change one
+  database entry at once?
+- **What:** `src/servers/ai_pool.py` (new) holds the orchestrator's decisions:
+  - **dispatch:** the oldest waiting job goes to a free, healthy AI server, `POST /run`;
+  - **health:** every AI server checked every 5 s (and whether its process is alive);
+  - **recover:** a crashed or silent AI server is removed and its job goes back to
+    waiting; after 2 attempts the job is marked failed instead of retried forever;
+  - **scale:** start an AI server when jobs wait and none is free (max 2), stop one idle
+    for 5 min; with no jobs, none runs.
+  The AI server lost its poll loop and gained `POST /run` (409 when busy); its model
+  loading and `advise()` are unchanged. The start script starts the orchestrator and the
+  interface only; the orchestrator starts the AI server.
+- **Decisions:**
+  - Jobs are pushed with one blocking HTTP call per job (simple; the result comes back in
+    the answer), each in its own thread, so two AI servers can work at once.
+  - All decisions happen in `tick()` under one lock; tests call it directly with a fake
+    clock, so every decision is tested exactly, without sleeping.
+  - Managed mode (the orchestrator starts processes) by default; external mode
+    (`AI_SERVERS`) for AI servers on other machines.
+  - On Windows a stopped process cannot clean up, so the start script first calls
+    `POST /ai/shutdown`; no AI server is left running.
+  - Concurrency answer: the interface has its own database; the orchestrator is the only
+    writer of the queue; every change is one `BEGIN IMMEDIATE` transaction; a late result
+    for a job that is no longer running is ignored.
+- **Tests:** `tests/test_orchestrator.py` 30 (queue, API, every decision with fake AI
+  servers), `tests/test_ai_server.py` rewritten for `POST /run`, integration test updated.
+  Whole suite: 253 passed.
+- **Checked live (18 Nov, real models):** `--check` PASSED in 28 s with the orchestrator
+  starting the AI server itself. No jobs → no AI server; first job → one started, 5 paths;
+  AI server killed by hand → next job: a new one started, 5 paths; idle → stopped.
+- **Open:** Task 7 report sections 6 and 8.2 still describe the first version.
