@@ -139,3 +139,51 @@ def test_create_job_calls_only_the_orchestrator(monkeypatch):
 
     assert server.create_job({"interest": "x"}) == "abc"
     assert calls == [("http://localhost:8001/jobs", {"request": {"interest": "x"}})]
+
+
+
+def flags():
+    """Every stored flag, as (item_type, item, course, path, job_id)."""
+    return server.db.execute(
+        "SELECT item_type, item, course, path, job_id FROM flags").fetchall()
+
+
+def test_flag_on_a_course_is_stored(fake):
+    response = fake["client"].post("/flags", json={
+        "type": "skill", "item": " Python (computer programming) ",
+        "course": "Intro to Python", "job_id": "7"})
+
+    assert response.status_code == 201
+    assert response.json() == {"id": 1, "message": "flagged for review"}
+    assert flags() == [("skill", "Python (computer programming)", "Intro to Python", None, "7")]
+
+
+def test_flag_on_a_path_is_stored(fake):
+    response = fake["client"].post("/flags", json={
+        "type": "occupation", "item": "software developer", "path": 2})
+
+    assert response.status_code == 201
+    assert flags() == [("occupation", "software developer", None, 2, None)]
+
+
+@pytest.mark.parametrize("payload, message", [
+    ({"type": "teacher", "item": "x", "path": 1}, server.FLAG_TYPE_ERROR),
+    ({"type": "skill", "item": "   ", "path": 1}, server.FLAG_ITEM_ERROR),
+    ({"type": "skill", "item": "Python"}, server.FLAG_WHERE_ERROR),
+    ({"type": "skill", "item": "Python", "path": 0}, server.FLAG_WHERE_ERROR),
+])
+def test_bad_flag_is_refused_and_not_stored(fake, payload, message):
+    response = fake["client"].post("/flags", json=payload)
+
+    assert response.status_code == 422
+    assert response.json() == {"error": message}
+    assert flags() == []
+
+
+def test_flag_stores_no_personal_data(fake):
+    fake["client"].post("/flags", json={
+        "type": "skill", "item": "Python", "path": 1,
+        "name": "Melat", "email": "student@example.com"})
+
+    stored = server.db.execute("SELECT * FROM flags").fetchone()
+    assert "Melat" not in stored and "student@example.com" not in stored
