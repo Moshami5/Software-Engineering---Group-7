@@ -17,7 +17,6 @@ import pytest
 httpx = pytest.importorskip("httpx")
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from scripts.run_servers import (  # noqa: E402
-    AI_SERVER,
     INTERFACE,
     ORCHESTRATOR,
     CheckFailed,
@@ -55,10 +54,9 @@ class FakeSystem:
         url, method = str(request.url), request.method
         body = json.loads(request.content) if request.content else None
 
-        if url == AI_SERVER.url + "/health":
-            return httpx.Response(200, json={"jobs_done": self.ai_handled, "jobs_failed": 0})
-        if url == ORCHESTRATOR.url + "/health":
-            return httpx.Response(200, json={"status": "ok", "jobs": {"done": len(self.jobs)}})
+        if url == ORCHESTRATOR.url + "/health":   # jobs_run = jobs an AI server finished
+            return httpx.Response(200, json={"status": "ok", "jobs": {"done": len(self.jobs)},
+                                             "jobs_run": self.ai_handled})
         if url == ORCHESTRATOR.url + "/jobs" and method == "POST":
             return httpx.Response(201, json={"id": self._queue(body["request"]), "status": "waiting"})
         if url.startswith(ORCHESTRATOR.url + "/jobs/"):

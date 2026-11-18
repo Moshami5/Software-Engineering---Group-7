@@ -1,23 +1,25 @@
-"""Start the three Task 6 servers with one command, and optionally check them end to end.
+"""Start the Task 6 servers with one command, and optionally check them end to end.
 
-    interface :8000  -> orchestrator :8001  <- AI server :8002     (tasks/task6/README.md)
+    interface :8000  -> orchestrator :8001  -> AI server :8002     (tasks/task6/README.md)
 
 Each server is its own process (python -m uvicorn ...), so they stay separate servers
-that only talk over HTTP; this script only starts them, waits until they answer and
-stops them again. It never imports the servers itself.
+that only talk over HTTP; this script never imports the servers itself. It starts the
+orchestrator and the interface; the orchestrator starts the AI server itself when the
+first job arrives (and restarts or stops it later), so the AI server is not started here.
 
 Usage (from the repo root):
-    python scripts/run_servers.py                     # start all three; Ctrl+C stops them
+    python scripts/run_servers.py                     # start everything; Ctrl+C stops it all
     python scripts/run_servers.py --check             # start, run the end-to-end check, stop
     python scripts/run_servers.py --check --no-interface
-        # only orchestrator + AI server; the check sends the job to the orchestrator itself.
-        # For use until the interface server is merged.
+        # only the orchestrator (and the AI server it starts); the check sends the job
+        # to the orchestrator itself.
 
 The end-to-end check (--check) sends requests the way a student would:
   1. invalid input (empty interest) to POST /advice -> 422, and no job reaches the queue;
   2. a real request ("software developer", 20 weeks) to POST /advice -> 202 + job id;
   3. polls GET /advice/{id} until the job is done -> result "ok" with 1-5 study paths,
-     and the AI server's /health shows it handled one more job.
+     and the orchestrator's /health shows an AI server ran one more job.
+The first job waits while the orchestrator starts the AI server and it loads the models.
 It exits with 0 when every step passes and 1 otherwise, so it can run in CI.
 
 Server output goes to runtime/logs/<server>.log (runtime/ is not committed).
@@ -59,8 +61,9 @@ ORCHESTRATOR = Server("orchestrator", "src.servers.orchestrator:app", 8001, "/he
 AI_SERVER = Server("ai_server", "src.servers.ai_server:app", 8002, "/health")
 INTERFACE = Server("interface", "src.interface_server:app", 8000, "/docs")
 
-# Started in this order: the queue first, so the AI server and the interface find it.
-ALL_SERVERS = (ORCHESTRATOR, AI_SERVER, INTERFACE)
+# Started in this order: the orchestrator first, so the interface finds it. The AI server
+# is started by the orchestrator, so it is not in this list, but its port must be free.
+ALL_SERVERS = (ORCHESTRATOR, INTERFACE)
 
 GOOD_REQUEST = {"interest": "software developer", "weeks_available": 20}
 BAD_REQUEST = {"interest": ""}
@@ -83,10 +86,7 @@ def start(server: Server, env: dict[str, str]) -> subprocess.Popen:
 
 def wait_until_up(server: Server, process: subprocess.Popen, timeout: float,
                   client: httpx.Client | None = None) -> None:
-    """Wait until ``server`` answers its health path; fail early if its process exits.
-
-    The AI server only starts answering after it has loaded the models (~30 s).
-    """
+    """Wait until ``server`` answers its health path; fail early if its process exits."""
     client = client or httpx.Client(timeout=2)
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
@@ -102,7 +102,16 @@ def wait_until_up(server: Server, process: subprocess.Popen, timeout: float,
     raise CheckFailed(f"{server.name} did not answer on {server.url} within {timeout:.0f} s")
 
 
+def stop_ai_servers() -> None:
+    """Ask the orchestrator to stop the AI servers it started, before it is stopped itself."""
+    try:
+        httpx.post(ORCHESTRATOR.url + "/ai/shutdown", timeout=15)
+    except httpx.HTTPError:
+        pass  # orchestrator already gone
+
+
 def stop_all(processes: list[subprocess.Popen]) -> None:
+    stop_ai_servers()
     for process in reversed(processes):
         if process.poll() is None:
             process.terminate()
@@ -154,8 +163,8 @@ def check_result(job: dict) -> dict:
 
 
 def jobs_handled(client: httpx.Client) -> int:
-    stats = client.get(AI_SERVER.url + "/health").json()
-    return stats["jobs_done"] + stats["jobs_failed"]
+    """Jobs the AI servers finished, as counted by the orchestrator that sent them."""
+    return client.get(ORCHESTRATOR.url + "/health").json()["jobs_run"]
 
 
 def queued_jobs(client: httpx.Client) -> int:
@@ -191,8 +200,9 @@ def run_check(client: httpx.Client, via_interface: bool = True, timeout: float =
     # 3. ... and comes back with study paths, computed by the AI server.
     result = check_result(poll_until_finished(client, status_url, timeout))
     if jobs_handled(client) != handled_before + 1:
-        raise CheckFailed("the job finished but the AI server did not report handling it")
-    print(f"  ok  {len(result['paths'])} study paths returned, computed by the AI server")
+        raise CheckFailed("the job finished but no AI server was reported running it")
+    print(f"  ok  {len(result['paths'])} study paths returned, computed by an AI server "
+          f"the orchestrator started and sent the job to")
     return result
 
 
@@ -210,13 +220,13 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     servers = [s for s in ALL_SERVERS if not (args.no_interface and s is INTERFACE)]
-    busy = [s for s in servers if port_in_use(s.port)]
+    busy = [s for s in (*servers, AI_SERVER) if port_in_use(s.port)]
     if busy:
         print("Port already in use: " + ", ".join(f"{s.name} :{s.port}" for s in busy)
               + ". Stop the old servers first.", file=sys.stderr)
         return 1
 
-    env = dict(os.environ, ORCHESTRATOR_URL=ORCHESTRATOR.url)
+    env = dict(os.environ, ORCHESTRATOR_URL=ORCHESTRATOR.url, AI_BASE_PORT=str(AI_SERVER.port))
     if args.check:
         RUNTIME.mkdir(exist_ok=True)
         db = RUNTIME / "e2e_check.sqlite3"
@@ -234,7 +244,7 @@ def main(argv: list[str] | None = None) -> int:
         if args.check:
             print("end-to-end check:")
             with httpx.Client(timeout=10) as client:
-                run_check(client, via_interface=not args.no_interface)
+                run_check(client, via_interface=not args.no_interface, timeout=args.timeout)
             print("PASSED")
             return 0
 
