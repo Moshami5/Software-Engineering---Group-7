@@ -183,7 +183,7 @@ open. Add your own entry in the same pull request as the work.
 
 ---
 
-## Sprint 3 — 9 – 15 Nov 2026 (Task 6)
+## Sprint 3 — 9 – 15 Nov 2026 (Task 6, scrum master: Melat)
 
 Entries for each teammate's card are short facts from their pull request; owners, add
 your decisions and findings to your own entry.
@@ -235,7 +235,7 @@ your decisions and findings to your own entry.
 
 ---
 
-## Sprint 4 — 16 – 22 Nov 2026 (Task 7)
+## Sprint 4 — 16 – 22 Nov 2026 (Task 7, scrum master: Musaed)
 
 ### Integration test across the three servers — Musaed, 18 Nov · PR #41 (merged into #42) · Trello "[T7] Code clean-up" checklist
 
