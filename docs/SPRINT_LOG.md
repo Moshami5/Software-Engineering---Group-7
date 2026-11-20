@@ -56,6 +56,14 @@ open. Add your own entry in the same pull request as the work.
     top-5 0.962, exact match 2.4%) was run with the unsplit labels. Team decision (26 Oct):
     earlier reports keep their numbers; re-evaluate before they are reused.
   - The full-ESCO results (4,241 skills, newline-separated) are not affected.
+  - **Re-evaluated 20 Nov (Mohamed, Sprint 4 card "Decide on the Task 2 Model 2 numbers"):**
+    the notebook now uses the module's `alt_labels()`, so the held-out query is one real
+    synonym instead of the whole synonym list. Clean index, embeddings: top-1 0.866 → 0.770,
+    top-5 0.962 → 0.929, MRR@5 0.905 → 0.835; TF-IDF: 0.816 / 0.927 / 0.864 →
+    0.770 / 0.911 / 0.827; exact match on the course vocabulary 2.4% → 4.2%; course skills
+    clearing 0.35 similarity 65.9% → 61.0%. The full-ESCO run gives exactly the old numbers,
+    as expected. Source: `data/processed/model2_results_clean.json`. The final report uses
+    the new numbers; the submitted Task 2 report keeps its original ones.
 - **Observed on real phrasings (input for thresholds and Task 7):** "working together in a
   team" returns "cooperate with colleagues" but not "teamwork principles" in the top 5;
   "data analysis" returns "data analytics" (2nd) but not "perform data analysis". Results
