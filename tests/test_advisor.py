@@ -13,6 +13,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from src.advisor import advise  # noqa: E402
+from src.explain import SCORE_NOTE, Evidence, ExplainData  # noqa: E402
 from src.feasibility import CourseFacts  # noqa: E402
 from src.interest import EMPTY_INTEREST_MESSAGE  # noqa: E402
 from src.occupations import NO_OCCUPATION, OccupationMatch, RequiredSkills  # noqa: E402
@@ -37,6 +38,15 @@ COURSES = [
 FACTS = {"c1": CourseFacts("English", 3), "c2": CourseFacts("English", 3),
          "c3": CourseFacts("English", 4), "c4": CourseFacts("Spanish", 3)}
 DURATIONS = {k: Duration(4, "week") for k in FACTS}
+# FR-8 to FR-11 inputs: each course's skill evidence and one occupation needing Python + SQL.
+EXPLAIN = ExplainData(
+    evidence={"c1": {"s:py": Evidence("python", "s:py", "Python", 0.8)},
+              "c2": {"s:sql": Evidence("sql", "s:sql", "SQL", 0.7)},
+              "c3": {"s:ml": Evidence("ml", "s:ml", "machine learning", 0.6),
+                     "s:py": Evidence("python", "s:py", "Python", 0.75)}},
+    occupation_skills={"o:1": frozenset({"s:py", "s:sql"})}, occupation_labels={"o:1": "data analyst"},
+    category_source={"c1": "label", "c2": "label", "c3": "model"},
+)
 
 
 class Spy:
@@ -54,7 +64,8 @@ def run(request, required=REQUIRED, courses=COURSES, message=None):
     derive = Spy(RequiredSkills([OccupationMatch("o:1", "data analyst", 0.7)] if required else [],
                                 required, None if required else NO_OCCUPATION))
     retrieve = Spy(RetrievalResult(courses, message))
-    response = advise(request, derive=derive, retrieve=retrieve, facts=FACTS, durations=DURATIONS)
+    response = advise(request, derive=derive, retrieve=retrieve, facts=FACTS, durations=DURATIONS,
+                      explain_data=EXPLAIN)
     return response, derive
 
 
@@ -85,6 +96,24 @@ def test_valid_request_returns_ranked_paths_as_json():
     assert sorted(best["covered_skills"]) == ["Python", "SQL", "machine learning"]
     fits = [p["fit"] for p in response["paths"]]
     assert fits == sorted(fits, reverse=True)
+
+
+def test_every_path_is_explained():
+    response, _ = run({"interest": "data analysis", "language": "English", "weeks_available": 12})
+
+    assert response["score_note"] == SCORE_NOTE
+    best = response["paths"][0]  # Databases + Intro to ML: covers Python, SQL and ML
+    assert best["opens"] == [{"occupation": "data analyst", "esco_id": "o:1", "skills_covered": 2,
+                              "essential_skills": 2, "share": 1.0}]       # FR-8
+    assert best["closes"] == []                                           # FR-9: nothing missing
+    for detail in best["course_details"]:                                 # FR-10, FR-11
+        assert detail["duration"] == "4 weeks" and detail["weeks"] == 4.0
+        assert all(link["similarity"] is not None for link in detail["skill_links"])
+
+    # With 4 weeks a path holds one course: Intro to ML covers Python + ML, so SQL is the gap.
+    short, _ = run({"interest": "data analysis", "language": "English", "weeks_available": 4})
+    ml_only = next(p for p in short["paths"] if [c["title"] for c in p["courses"]] == ["Intro to ML"])
+    assert ml_only["closes"] == ["SQL"]                                   # FR-9 lists the gap
 
 
 def test_missing_context_is_shown_as_not_given():
