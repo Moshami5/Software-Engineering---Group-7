@@ -286,3 +286,40 @@ your decisions and findings to your own entry.
   starting the AI server itself. No jobs → no AI server; first job → one started, 5 paths;
   AI server killed by hand → next job: a new one started, 5 paths; idle → stopped.
 - **Open:** Task 7 report sections 6 and 8.2 still describe the first version.
+
+### FR-8 to FR-11: path explanation — Mohamed, 20 Nov · branch `feature/fr8-fr11-path-explanation` · Trello "[FR-8 · FR-9 · FR-10 · FR-11 · NFR-6 · AIR-5] Path explanation"
+
+- **What:** `src/explain.py` (new); `advise()` adds an explanation to every path:
+  - **FR-8 `opens`:** up to 5 ESCO occupations whose essential skills the path's courses
+    cover most, with "skills covered / essential skills" and the share; "none matched" if none;
+  - **FR-9 `closes`:** the required skills (FR-3) the path does not cover; `null` when no
+    occupation was matched, as the SRS says;
+  - **FR-10 + AIR-5 `course_details[].skill_links`:** each required skill a course brings,
+    traced to the course's own skill text, its ESCO id and the similarity score;
+    `category_from` says whether the category is a catalogue label or a Model 1 prediction;
+  - **FR-11 `course_details[].duration` / `weeks`:** the listed duration ("4 weeks",
+    "17 hours") and its weeks, which add up to the path's total; "not listed" if missing;
+  - `score_note` in every response: scores are cosine similarities, not probabilities (AIR-5).
+  All earlier fields stay, so the servers and their tests are unchanged. The AI server
+  preloads the explanation data with the models.
+- **Decisions:**
+  - FR-8 ranks occupations by the number of essential skills covered, then by share, so a
+    small occupation cannot win on one lucky skill (every occupation has at least 5).
+  - The skill evidence uses the same threshold as FR-4 retrieval (0.45), so every link
+    shown is one the path was built on.
+- **Tests:** `tests/test_explain.py` 8 unit tests (hand-made courses and occupations);
+  `tests/test_advisor.py` +1 (explanation in the response, gap with 4 weeks);
+  `tests/test_advisor_integration.py` +1 on real data (shares in range, gap ⊆ required
+  skills, every link traced with score ≥ 0.45, course weeks add up). Whole suite: 270 passed.
+- **Seen on real data:** "I want to work with data" → first path opens data scientist
+  (13/63 skills), data analyst (12/36), data engineer (8/23); "software developer" → paths
+  cover about a quarter of the required skills, and `closes` lists the rest (33 skills).
+- **Follow-up after review (Musaed, 21 Nov, branch `fix/path-explanation-ranking`):**
+  - FR-8 now ranks by count x share (covered² / essential skills). Ranking by count first
+    let large occupations win: "software developer" opened "numerical tool and process
+    control programmer" (12/51) on every path, above "software architect" (10/19). Now:
+    software architect, cloud software developer, cloud DevOps engineer; "data analyst"
+    opens data analyst (21/36) first.
+  - FR-9 `closes` shows the first 10 missing skills in FR-3's order, and the new
+    `closes_total` says how many there are ("data analyst": 10 of 60), so nothing is hidden.
+  - Tests: +2 unit tests (large vs small occupation, gap cap); whole suite 272 passed.

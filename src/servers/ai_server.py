@@ -40,6 +40,7 @@ _busy = threading.Lock()
 
 def preload_models() -> None:
     """Load both models, the indices and the catalogue once, so the first job is fast."""
+    from src.explain import load_explain_data
     from src.feasibility import load_facts
     from src.model_skills import load_encoder
     from src.occupations import load_occupation_index, load_relations
@@ -52,6 +53,7 @@ def preload_models() -> None:
     load_catalogue()
     load_facts()
     load_durations()
+    load_explain_data()  # FR-8 to FR-11: course evidence and occupation skills
     stats["models_loaded"] = True
 
 

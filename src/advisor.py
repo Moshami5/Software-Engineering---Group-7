@@ -1,8 +1,9 @@
-"""The whole advisor chain FR-1 -> FR-7 behind one call: ``advise(request) -> response``.
+"""The whole advisor chain FR-1 -> FR-11 behind one call: ``advise(request) -> response``.
 
 validate interest (FR-1) and study context (FR-2)
 -> required skills from matching occupations (FR-3)
--> candidate courses (FR-4) -> feasible courses (FR-5) -> ranked study paths (FR-6, FR-7).
+-> candidate courses (FR-4) -> feasible courses (FR-5) -> ranked study paths (FR-6, FR-7)
+-> each path explained (FR-8 to FR-11, src/explain.py).
 
 Request and response are plain dicts of JSON types, so the Task 6 AI server can take a
 request off the orchestrator queue, call ``advise`` and put the response back unchanged.
@@ -36,16 +37,18 @@ def _course(candidate) -> dict:
     }
 
 
-def _path(path, required_labels: dict[str, str]) -> dict:
+def _path(path, required_labels: dict[str, str], explanation: dict) -> dict:
     return {
         "fit": round(float(path.fit), 3),
         "weeks": round(float(path.weeks), 1),
         "courses": [_course(c) for c in path.courses],
         "covered_skills": sorted(required_labels[i] for i in path.covered if i in required_labels),
+        **explanation,  # FR-8 opens, FR-9 closes, FR-10/FR-11 course_details (src/explain.py)
     }
 
 
-def advise(request: dict, *, derive=None, retrieve=None, facts=None, durations=None) -> dict:
+def advise(request: dict, *, derive=None, retrieve=None, facts=None, durations=None,
+           explain_data=None) -> dict:
     """Run FR-1 -> FR-7 for one request and return a JSON-safe response.
 
     ``request``: {"interest": str, "language": str, "hours_per_week": number,
@@ -53,8 +56,10 @@ def advise(request: dict, *, derive=None, retrieve=None, facts=None, durations=N
 
     Response on bad input: {"ok": False, "error": <user-facing message>}.
     Otherwise {"ok": True, "context", "occupations", "required_skills", "paths",
-    "removed", "left_out_no_duration", "message"}; ``message`` is None when 3-5 paths
-    were found, else it says why there are fewer (no occupation, no courses, few paths).
+    "score_note", "removed", "left_out_no_duration", "message"}; ``message`` is None when
+    3-5 paths were found, else it says why there are fewer (no occupation, no courses, few
+    paths). Each path has "fit", "weeks", "courses", "covered_skills" and its explanation:
+    "opens" (FR-8), "closes" and "closes_total" (FR-9) and "course_details" (FR-10, FR-11).
     """
     if not isinstance(request, dict):
         return _error("Request must be a JSON object")
@@ -78,8 +83,12 @@ def advise(request: dict, *, derive=None, retrieve=None, facts=None, durations=N
     if durations is None:
         from src.paths import load_durations
         durations = load_durations()
+    if explain_data is None:
+        from src.explain import load_explain_data
+        explain_data = load_explain_data()
+    from src.explain import SCORE_NOTE, explain_path
     from src.feasibility import assess
-    from src.paths import build_paths
+    from src.paths import build_paths, to_weeks
 
     required = derive(interest.value)                       # FR-3
     candidates = retrieve(interest.value, required.skills)  # FR-4 (falls back to the interest)
@@ -91,6 +100,13 @@ def advise(request: dict, *, derive=None, retrieve=None, facts=None, durations=N
         {i: label for c in candidates.courses for i, label in c.matched_skills}.items())
     paths = build_paths([k.course for k in feasibility.kept], scored, context, durations)  # FR-6, FR-7
 
+    def weeks_of(course):
+        return to_weeks(durations.get(course.course_key), context.hours_per_week)
+
+    occupation_matched = bool(required.occupations)
+    explained = [explain_path(p, list(required.skills), occupation_matched, explain_data,
+                              durations, weeks_of) for p in paths.paths]  # FR-8 to FR-11
+
     message = candidates.message or paths.message or required.message
     return {
         "ok": True,
@@ -99,7 +115,8 @@ def advise(request: dict, *, derive=None, retrieve=None, facts=None, durations=N
         "occupations": [{"label": o.label, "score": round(float(o.score), 3)}
                         for o in required.occupations],
         "required_skills": [label for _, label in required.skills],
-        "paths": [_path(p, dict(scored)) for p in paths.paths],
+        "paths": [_path(p, dict(scored), e) for p, e in zip(paths.paths, explained)],
+        "score_note": SCORE_NOTE,  # AIR-5
         "removed": [{"title": str(r.course.title), "reason": r.reason} for r in feasibility.removed],
         "left_out_no_duration": paths.left_out_no_duration,
         "message": message,
