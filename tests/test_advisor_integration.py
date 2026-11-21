@@ -41,6 +41,7 @@ def test_paths_on_real_data_are_explained():
         assert all(0 < o["share"] <= 1 and o["skills_covered"] <= o["essential_skills"] for o in path["opens"])
         # FR-9: an occupation was matched, so the gap is a list of required skills.
         assert set(path["closes"]) <= set(response["required_skills"])
+        assert len(path["closes"]) <= path["closes_total"]
         # FR-10 + AIR-5: every skill link traced to the course's own text with a score.
         details = path["course_details"]
         assert len(details) == len(path["courses"])

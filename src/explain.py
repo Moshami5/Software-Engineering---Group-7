@@ -2,9 +2,11 @@
 
 Per path:
 - FR-8  what it opens: up to 5 ESCO occupations whose essential skills the path's courses
-        cover most, each with the share covered; "none matched" when it covers none.
-- FR-9  what it closes off: the required skills (FR-3) the path does not cover; shown
-        only when an occupation was matched, else None.
+        cover best (count x share, see occupations_opened), each with the share covered;
+        "none matched" when it covers none.
+- FR-9  what it closes off: the required skills (FR-3) the path does not cover, the first
+        MAX_GAPS in FR-3's order, plus their total; shown only when an occupation was
+        matched, else None.
 - FR-10 why each course is in it: the required ESCO skills the course contributes, each
         traced to the course's own skill text with its similarity score (AIR-5).
 - FR-11 how long: each course's listed duration and its weeks; "not listed" if missing.
@@ -27,6 +29,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from src.study_context import NOT_LISTED  # noqa: E402
 
 MAX_OPENED = 5
+MAX_GAPS = 10  # FR-9: a student reads 10 missing skills; the total says how many more
 NONE_MATCHED = "none matched"
 SCORE_NOTE = "Scores are cosine similarities (0-1) between texts, not probabilities of being correct."
 CATEGORY_FROM = {"label": "catalogue label", "model": "Model 1 prediction"}
@@ -76,22 +79,25 @@ def course_evidence(catalogue: pd.DataFrame, skill_matches: pd.DataFrame, thresh
 
 def occupations_opened(skill_ids: set, occupation_skills: dict, occupation_labels: dict,
                        limit: int = MAX_OPENED) -> list[dict] | str:
-    """FR-8: occupations whose essential skills the path covers most, with the share covered.
+    """FR-8: occupations whose essential skills the path covers best, with the share covered.
 
-    Ranked by the number of essential skills covered, then by share, then by name, so a
-    small occupation does not win on one lucky skill. "none matched" when nothing overlaps.
+    Ranked by count x share (= covered^2 / essential skills), then by count, then by name.
+    Count alone lets large occupations win (12 of 51 skills above 10 of 19); share alone
+    lets a small occupation win on one lucky skill (1 of 2). The product needs both.
+    "none matched" when nothing overlaps.
     """
     ranked = []
     for occ_id, essentials in occupation_skills.items():
         covered = len(skill_ids & essentials)
         if covered:
-            ranked.append((-covered, -covered / len(essentials), occupation_labels.get(occ_id, occ_id), occ_id))
+            share = covered / len(essentials)
+            ranked.append((-covered * share, -covered, occupation_labels.get(occ_id, occ_id), occ_id, share))
     if not ranked:
         return NONE_MATCHED
     ranked.sort()
-    return [{"occupation": label, "esco_id": occ_id, "skills_covered": -neg,
-             "essential_skills": len(occupation_skills[occ_id]), "share": round(-share, 3)}
-            for neg, share, label, occ_id in ranked[:limit]]
+    return [{"occupation": label, "esco_id": occ_id, "skills_covered": -neg_covered,
+             "essential_skills": len(occupation_skills[occ_id]), "share": round(share, 3)}
+            for _, neg_covered, label, occ_id, share in ranked[:limit]]
 
 
 def skill_gaps(required: list[tuple[str, str]], covered_ids) -> list[str]:
@@ -129,13 +135,17 @@ def explain_path(path, required: list[tuple[str, str]], occupation_matched: bool
                  data: ExplainData, durations: dict, weeks_of) -> dict:
     """FR-8 + FR-9 + per-course FR-10/FR-11 for one StudyPath.
 
+    ``closes`` holds at most MAX_GAPS skills; ``closes_total`` is how many are missing.
+
     ``weeks_of(course)`` gives a course's duration in weeks (FR-6's conversion), so the
     numbers shown add up to the path's total.
     """
     path_skills = set().union(*(data.evidence.get(c.course_key, {}).keys() for c in path.courses))
+    gaps = skill_gaps(required, path.covered) if occupation_matched else None
     return {
         "opens": occupations_opened(path_skills, data.occupation_skills, data.occupation_labels),
-        "closes": skill_gaps(required, path.covered) if occupation_matched else None,
+        "closes": gaps[:MAX_GAPS] if gaps is not None else None,
+        "closes_total": len(gaps) if gaps is not None else None,
         "course_details": [explain_course(c, data, durations.get(c.course_key), weeks_of(c))
                            for c in path.courses],
     }

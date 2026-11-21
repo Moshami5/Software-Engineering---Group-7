@@ -14,7 +14,7 @@ from types import SimpleNamespace
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from src.explain import (NONE_MATCHED, Evidence, ExplainData, course_evidence,  # noqa: E402
+from src.explain import (MAX_GAPS, NONE_MATCHED, Evidence, ExplainData, course_evidence,  # noqa: E402
                          duration_text, explain_path, occupations_opened, skill_gaps)
 from src.paths import Duration  # noqa: E402
 from src.study_context import NOT_LISTED  # noqa: E402
@@ -42,13 +42,25 @@ def test_course_evidence_keeps_matches_above_threshold_best_score_per_skill():
     assert evidence["c1"][PY] == Evidence("python programming", PY, "Python", 0.90)  # best of 0.70/0.90
 
 
-def test_occupations_opened_ranks_by_skills_covered_then_share():
+def test_occupations_opened_ranks_by_count_times_share():
     opened = occupations_opened({PY, SQL, ML}, OCC_SKILLS, OCC_LABELS)
 
     assert [o["occupation"] for o in opened] == ["data analyst", "web developer"]
     assert opened[0] == {"occupation": "data analyst", "esco_id": "o:analyst", "skills_covered": 3,
                          "essential_skills": 4, "share": 0.75}
     assert opened[1]["skills_covered"] == 1 and opened[1]["share"] == 0.5
+
+
+def test_occupations_opened_large_occupation_does_not_win_on_count_alone():
+    # Seen live: "numerical tool ... programmer" (12 of 51) above "software architect" (10 of 19).
+    big = frozenset(f"s:{i}" for i in range(51))
+    small = frozenset(f"s:{i}" for i in range(41, 60))
+    lucky = frozenset({"s:0", "s:x"})
+    path = {f"s:{i}" for i in range(41, 51)} | {f"s:{i}" for i in range(2)}  # 12 of big, 10 of small, 1 of lucky
+    opened = occupations_opened(path, {"o:big": big, "o:small": small, "o:lucky": lucky},
+                                {"o:big": "big", "o:small": "small", "o:lucky": "lucky"})
+    assert [o["occupation"] for o in opened] == ["small", "big", "lucky"]  # 5.26 > 2.82 > 0.5
+    assert opened[1]["skills_covered"] == 12 and opened[0]["skills_covered"] == 10
 
 
 def test_occupations_opened_says_none_matched_and_caps_at_limit():
@@ -92,7 +104,7 @@ def test_explain_path_with_an_occupation_match():
     # FR-8: the path's courses cover Python, SQL and ML -> 3 of the analyst's 4 skills.
     assert out["opens"][0]["occupation"] == "data analyst" and out["opens"][0]["share"] == 0.75
     # FR-9: statistics is required but not covered.
-    assert out["closes"] == ["statistics"]
+    assert out["closes"] == ["statistics"] and out["closes_total"] == 1
     # FR-10 + AIR-5: each course's skill traced to its own text, with the similarity score.
     first, second = out["course_details"]
     assert first["skill_links"] == [{"esco_skill": "Python", "esco_id": PY,
@@ -106,6 +118,7 @@ def test_explain_path_with_an_occupation_match():
 def test_explain_path_without_an_occupation_match_hides_the_gap():
     out = explain_path(PATH, [], False, DATA, DURATIONS, weeks_of=lambda c: 4.0)
     assert out["closes"] is None          # FR-9 is shown only when an occupation was matched
+    assert out["closes_total"] is None
     assert out["opens"] != NONE_MATCHED   # FR-8 still works from the courses' own skills
 
 
@@ -117,3 +130,10 @@ def test_course_without_evidence_or_duration_is_marked_not_listed():
     assert detail["category_from"] == NOT_LISTED
     assert detail["skill_links"][0]["from_course_skill"] == NOT_LISTED
     assert out["opens"] == NONE_MATCHED
+
+
+def test_closes_shows_the_first_gaps_and_the_total():
+    required = [(f"s:{i}", f"skill {i}") for i in range(MAX_GAPS + 5)]
+    out = explain_path(PATH, required, True, DATA, DURATIONS, weeks_of=lambda c: 4.0)
+    assert out["closes"] == [f"skill {i}" for i in range(MAX_GAPS)]  # FR-3's order
+    assert out["closes_total"] == MAX_GAPS + 5

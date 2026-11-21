@@ -59,7 +59,7 @@ def advise(request: dict, *, derive=None, retrieve=None, facts=None, durations=N
     "score_note", "removed", "left_out_no_duration", "message"}; ``message`` is None when
     3-5 paths were found, else it says why there are fewer (no occupation, no courses, few
     paths). Each path has "fit", "weeks", "courses", "covered_skills" and its explanation:
-    "opens" (FR-8), "closes" (FR-9) and "course_details" (FR-10, FR-11).
+    "opens" (FR-8), "closes" and "closes_total" (FR-9) and "course_details" (FR-10, FR-11).
     """
     if not isinstance(request, dict):
         return _error("Request must be a JSON object")

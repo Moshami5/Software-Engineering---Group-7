@@ -314,3 +314,12 @@ your decisions and findings to your own entry.
 - **Seen on real data:** "I want to work with data" → first path opens data scientist
   (13/63 skills), data analyst (12/36), data engineer (8/23); "software developer" → paths
   cover about a quarter of the required skills, and `closes` lists the rest (33 skills).
+- **Follow-up after review (Musaed, 21 Nov, branch `fix/path-explanation-ranking`):**
+  - FR-8 now ranks by count x share (covered² / essential skills). Ranking by count first
+    let large occupations win: "software developer" opened "numerical tool and process
+    control programmer" (12/51) on every path, above "software architect" (10/19). Now:
+    software architect, cloud software developer, cloud DevOps engineer; "data analyst"
+    opens data analyst (21/36) first.
+  - FR-9 `closes` shows the first 10 missing skills in FR-3's order, and the new
+    `closes_total` says how many there are ("data analyst": 10 of 60), so nothing is hidden.
+  - Tests: +2 unit tests (large vs small occupation, gap cap); whole suite 272 passed.
