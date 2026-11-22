@@ -8,7 +8,7 @@ words. Per the SRS (Task 3, FR-1):
 
 This module is deliberately pure and dependency-free: `validate_interest` takes a
 string and returns a `ValidationResult`, with no I/O, so it is unit-testable in
-isolation. FR-2 (study context) will be added alongside it as the next card.
+isolation. FR-2 (study context) is in src/study_context.py, in the same style.
 """
 from __future__ import annotations
 

@@ -1,6 +1,6 @@
 # Task 3 — Analysis (SRS)
 
-**Due:** Fri 9 Oct 2026, 18:00 · **Points:** 6 · **Status:** submitted 9 Oct; revised to v2 after feedback (20 Oct)
+**Due:** Fri 9 Oct 2026, 18:00 · **Points:** 6 · **Status:** submitted 9 Oct; revised to v2 after feedback (20 Oct); v3 compared with the built system for Task 7 (19 Nov)
 
 ## What was asked
 
@@ -37,4 +37,5 @@ are design defaults and can be revised.
 | File | What it is |
 |---|---|
 | `Task3_Group7_SRS_v1_submitted.docx` / `.pdf` | as submitted on 9 Oct — kept as the baseline for tracing requirement changes (Task 4) |
-| `Task3_Group7_SRS_v2.docx` / `.pdf` | current version — **use this one** |
+| `Task3_Group7_SRS_v2.docx` / `.pdf` | v2, revised after the 20 Oct feedback |
+| `Task3_Group7_SRS_v3_changes_marked.pdf` | **latest**: v3 (19 Nov, Task 7), v2 compared with the built system; changes marked, status of every requirement in section 5 |

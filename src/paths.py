@@ -9,7 +9,8 @@ FR-7 (rank): a path's fit score is the share of the required skills it covers (0
 Paths are ordered by fit, ties going to the shorter path; 3-5 are returned, or fewer with
 "only N paths fit your constraints".
 
-Durations are converted to weeks: weeks as listed, months x 4.3, days / 7; hours and
+Durations are converted to weeks: weeks as listed, months x 4.3, days / 7, hours and
+minutes / the student's hours per week.3, days / 7; hours and
 minutes are total study time, divided by the student's hours per week.
 """
 from __future__ import annotations

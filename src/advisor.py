@@ -49,7 +49,7 @@ def _path(path, required_labels: dict[str, str], explanation: dict) -> dict:
 
 def advise(request: dict, *, derive=None, retrieve=None, facts=None, durations=None,
            explain_data=None) -> dict:
-    """Run FR-1 -> FR-7 for one request and return a JSON-safe response.
+    """Run FR-1 -> FR-11 for one request and return a JSON-safe response.
 
     ``request``: {"interest": str, "language": str, "hours_per_week": number,
     "weeks_available": number, "completed_courses": [str]}; only "interest" is required.
