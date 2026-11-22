@@ -1,6 +1,6 @@
 # Task 7 — Wrapping up (final report)
 
-**Due:** Fri 20 Nov 2026, 18:00 (resit: Fri 27 Nov) · **Points:** 2 · **Status:** not started
+**Due:** Mon 23 Nov 2026, 11:00 (moved by the lecturer from Fri 20 Nov) · **Points:** 2 · **Status:** final report in progress
 
 Followed by the **project presentation** on 30 Nov (7 points; 10–15 minutes plus 5–7
 minutes of questions; every member must attend, and each gets an individual question).
@@ -34,6 +34,18 @@ minutes of questions; every member must attend, and each gets an individual ques
 - Training and inference times for the carbon-footprint section.
 - Each sprint's scrum master and who owned which board cards, for the teamwork section.
 
+## Done for Task 7 (Sprint 4, 16–22 Nov)
+
+| What | Requirement | PR |
+|---|---|---|
+| Real orchestrator after the Task 6 feedback | Task 6 | #42 |
+| Re-evaluate when inputs change | FR-12 | #43 |
+| SRS v3: every requirement compared with the built system | Task 7 "Operation" | #44 |
+| Model 2 evaluation re-run with the alt-label fix | FR-15, AIR-2 | #45 |
+| Explain every study path | FR-8 – FR-11, NFR-6, AIR-5 | #46, #47 |
+| Bias evaluation with paired inputs | AIR-6, NFR-7 | #48 |
+| Documentation for the whole project | Task 7 "Code" | `docs/HOW_IT_WORKS.md` |
+
 ## Files
 
-The final report goes here when written.
+The final report (`Task7_Group7_Final_Report.pdf`) goes here when submitted.
