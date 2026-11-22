@@ -1,0 +1,9 @@
+{
+  "_note": "Decided values for the update pipeline (FR-16). The SRS leaves the minimum quality values as TBD (AIR-1, AIR-2); the group fixed them here: test macro-F1 at least 0.70 and at most 0.02 below the active model (the first Model 1 scored 0.7721). max_lookup_ms = 500 is from NFR-4 / AIR-8.",
+  "min_courses": 100,
+  "min_labelled_per_category": 10,
+  "min_esco_skills": 100,
+  "min_test_macro_f1": 0.70,
+  "max_macro_f1_drop_vs_active": 0.02,
+  "max_lookup_ms": 500
+}
