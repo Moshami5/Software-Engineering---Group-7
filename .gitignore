@@ -6,6 +6,10 @@ venv/
 .pytest_cache/
 .ipynb_checkpoints/
 
+# Update pipeline (scripts/update_pipeline.py, FR-16): staged candidates and version records.
+data/staging/
+data/releases/
+
 # Intermediate data — produced by the scripts, not committed.
 # NOTE: the raw files in data/*.csv ARE committed.
 data/processed/*

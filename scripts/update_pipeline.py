@@ -241,6 +241,9 @@ def run_update(paths: Paths, catalogue_path: Path, esco_path: Path | None, catal
     from src import model_skills as ms
 
     run_id = run_id or datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    # Load the encoder (PyTorch) before Model 1 is trained: on Windows, importing torch
+    # after scikit-learn has trained fails with "WinError 127 ... torch\lib\shm.dll".
+    encoder = encoder or ms.load_encoder()
     crit = json.loads(paths.criteria.read_text(encoding="utf-8"))
     prep = load_prepare_module()
     stage = paths.staging_root / run_id
@@ -265,7 +268,6 @@ def run_update(paths: Paths, catalogue_path: Path, esco_path: Path | None, catal
         staged_model = stage / paths.model.name
         joblib.dump(model, staged_model, compress=3)
 
-        encoder = encoder or ms.load_encoder()
         t0 = time.perf_counter()
         esco_table = ms.load_esco(esco_for_index)
         index = ms.build_index(esco_table, encoder)

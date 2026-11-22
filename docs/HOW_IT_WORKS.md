@@ -161,6 +161,26 @@ flowchart LR
 - Run time: about 105 s. Tested by I3 (`tests/test_integration_i3_batch_catalogue.py`),
   which also checks that a live lookup takes < 500 ms (AIR-8).
 
+**When the data changes (FR-16, AIR-7)** · `scripts/update_pipeline.py` (Raluca): a new
+catalogue or ESCO release goes through the same preparation, but safely:
+
+```mermaid
+flowchart LR
+    N["new catalogue<br/>and/or ESCO file"] --> ST["copy to data/staging/"]
+    ST --> V{"input checks<br/>columns, size,<br/>labels per category"}
+    V -- fail --> REJ["rejected<br/>old version stays"]
+    V -- pass --> TR["retrain Model 1<br/>re-run Phase 1"]
+    TR --> AC{"11 acceptance checks<br/>macro-F1 at least 0.70 and<br/>at most 0.02 below the active model,<br/>lookups under 500 ms, same columns"}
+    AC -- fail --> REJ
+    AC -- pass --> ACT["replace the live files<br/>backup kept"]
+    REJ --> REC["version_record.json<br/>in data/releases/"]
+    ACT --> REC
+```
+
+The minimum values are in `config/acceptance_criteria.json`. Every run, accepted or not,
+records the model versions, the ESCO release, file hashes and the scores (AIR-7). With the
+current catalogue a dry run passes all 11 checks (retrained Model 1: test macro-F1 0.782).
+
 ---
 
 ## 6. Phase 2, one student request: the servers
@@ -450,7 +470,7 @@ flowchart LR
 | 4 Project management | `tasks/task4/` | Trello board, `docs/INTERFACES.md` |
 | 5 Implementation and testing | `tasks/task5/` | `src/*.py` modules, `scripts/prepare_catalogue.py`, `tests/` |
 | 6 Scaling up | `tasks/task6/` | `src/interface_server.py`, `src/servers/`, `scripts/run_servers.py` |
-| 7 Wrap up | `tasks/task7/` | `src/explain.py` (FR-8–11), FR-12, `scripts/bias_eval.py`, SRS v3 |
+| 7 Wrap up | `tasks/task7/` | `src/explain.py` (FR-8–11), FR-12, `scripts/bias_eval.py`, `scripts/update_pipeline.py` (FR-16), SRS v3 |
 
 Who did what, card by card: `docs/SPRINT_LOG.md`.
 
@@ -571,6 +591,11 @@ running them; that is one reason the orchestrator stops idle AI servers.
 **How did you test it?** 281 automated tests: unit tests with fakes, integration tests with
 the real models, server tests, and an end-to-end check (`run_servers.py --check`). CI runs
 them on every push, and `main` only accepts reviewed pull requests.
+
+**What happens when the course catalogue changes?** `scripts/update_pipeline.py` retrains
+Model 1 and re-runs the preparation on a copy, checks 11 acceptance criteria (e.g. macro-F1
+not more than 0.02 worse than the current model) and only then swaps the files in, keeping
+a backup and a version record. If any check fails, the old version stays in use.
 
 **What would you do next?** Get the real university catalogue (we used an online one), fix
 the bias found by AIR-6, add a user interface, and test with real students.

@@ -44,6 +44,7 @@ minutes of questions; every member must attend, and each gets an individual ques
 | Model 2 evaluation re-run with the alt-label fix | FR-15, AIR-2 | #45 |
 | Explain every study path | FR-8 – FR-11, NFR-6, AIR-5 | #46, #47 |
 | Bias evaluation with paired inputs | AIR-6, NFR-7 | #48 |
+| Data + model update pipeline with acceptance checks | FR-16, NFR-5, NFR-9, AIR-7 | #49, #50 |
 | Documentation for the whole project | Task 7 "Code" | `docs/HOW_IT_WORKS.md` |
 
 ## Files

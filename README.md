@@ -32,7 +32,7 @@ flowchart LR
 |---|---|
 | understand how it all works | [`docs/HOW_IT_WORKS.md`](docs/HOW_IT_WORKS.md) |
 | know what each code file and function does | [`src/README.md`](src/README.md) |
-| run the servers, the batch preparation or the bias check | [`scripts/README.md`](scripts/README.md) |
+| run the servers, the batch preparation, the update pipeline or the bias check | [`scripts/README.md`](scripts/README.md) |
 | know which test checks what | [`tests/README.md`](tests/README.md) |
 | see the server API and the orchestrator's decisions | [`tasks/task6/README.md`](tasks/task6/README.md) |
 | see who did what, card by card | [`docs/SPRINT_LOG.md`](docs/SPRINT_LOG.md) |
@@ -58,7 +58,7 @@ summarises the assignment, the rubric and the lecturer's feedback.
 | 4 — Project management and implementation | 23 Oct | submitted late (26 Oct) | [`tasks/task4/`](tasks/task4/) |
 | 5 — Implementation and testing | 6 Nov | report submitted 6 Nov; all 8 planned tests pass; demonstrated 9 Nov | [`tasks/task5/`](tasks/task5/) |
 | 6 — Scaling up | 13 Nov | done: interface, orchestrator and AI servers on `main`; after the 17 Nov feedback the orchestrator pushes jobs and starts, checks and restarts the AI servers | [`tasks/task6/`](tasks/task6/) |
-| 7 — Wrap up | 23 Nov (moved by the lecturer from 20 Nov) | final report in progress; added: path explanation (FR-8 to FR-11), re-evaluate on change (FR-12), bias check (AIR-6), SRS v3, Model 2 re-run | [`tasks/task7/`](tasks/task7/) |
+| 7 — Wrap up | 23 Nov (moved by the lecturer from 20 Nov) | final report in progress; added: path explanation (FR-8 to FR-11), re-evaluate on change (FR-12), update pipeline (FR-16), bias check (AIR-6), SRS v3, Model 2 re-run | [`tasks/task7/`](tasks/task7/) |
 
 ## Repository layout
 
