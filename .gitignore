@@ -40,6 +40,10 @@ data/processed/*
 !data/processed/model2_results_*.json
 !data/processed/model2_match_examples_*.csv
 
+# Bias evaluation with paired interests (scripts/bias_eval.py, AIR-6, NFR-7).
+!data/processed/bias_eval.json
+!data/processed/bias_eval.md
+
 # Generated model artefacts
 *.pt
 *.joblib
